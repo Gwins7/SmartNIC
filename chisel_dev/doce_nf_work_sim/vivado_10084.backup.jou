@@ -1,0 +1,15 @@
+#-----------------------------------------------------------
+# Vivado v2020.2 (64-bit)
+# SW Build 3064766 on Wed Nov 18 09:12:45 MST 2020
+# IP Build 3064653 on Wed Nov 18 14:17:31 MST 2020
+# Start of session at: Mon Apr 25 17:48:07 2022
+# Process ID: 10084
+# Current directory: D:/Chisel/doce_nf_work
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent14484 D:\Chisel\doce_nf_work\doce_nf.xpr
+# Log file: D:/Chisel/doce_nf_work/vivado.log
+# Journal file: D:/Chisel/doce_nf_work\vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project D:/Chisel/doce_nf_work/doce_nf.xpr
+update_compile_order -fileset sources_1
+open_example_project -force -dir D:/Chisel [get_ips  mpsoc_qdma_0_0]

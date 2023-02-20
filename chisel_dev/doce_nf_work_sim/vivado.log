@@ -1,0 +1,21 @@
+#-----------------------------------------------------------
+# Vivado v2020.1 (64-bit)
+# SW Build 2902540 on Wed May 27 19:54:49 MDT 2020
+# IP Build 2902112 on Wed May 27 22:43:36 MDT 2020
+# Start of session at: Mon Feb 20 13:30:09 2023
+# Process ID: 25328
+# Current directory: D:/Chisel/reference_projects/doce_nf_work_sim
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent9416 D:\Chisel\reference_projects\doce_nf_work_sim\doce_nf.xpr
+# Log file: D:/Chisel/reference_projects/doce_nf_work_sim/vivado.log
+# Journal file: D:/Chisel/reference_projects/doce_nf_work_sim\vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project D:/Chisel/reference_projects/doce_nf_work_sim/doce_nf.xpr
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1700] Loaded user IP repository 'd:/Chisel/reference_projects/doce_nf_work_sim/doce_nf.srcs/sources_1/padding'.
+INFO: [IP_Flow 19-1700] Loaded user IP repository 'd:/Chisel/reference_projects/doce_nf_work_sim/doce_nf.srcs/sources_1/reset'.
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'D:/Xilinx/Vivado/2020.1/data/ip'.
+open_project: Time (s): cpu = 00:00:04 ; elapsed = 00:00:06 . Memory (MB): peak = 1036.652 ; gain = 0.000
+reset_project

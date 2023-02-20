@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="/home/huangtianyi/doce_nf_work_axist/doce_nf.hw/hw_1/wave/hw_ila_data_1/hw_ila_data_1.wdb" id="1">
+         <top_modules>
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="4206fs"></ZoomEndTime>
+      <Cursor1Time time="0fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="345"></NameColumnWidth>
+      <ValueColumnWidth column_width="335"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="48" />
+   <wave_markers>
+   </wave_markers>
+   <wvobject type="array" fp_name="QDMA_h2c_stub_out_tdata">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_h2c_stub_out_tdata[511:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_h2c_stub_out_tdata[511:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_h2c_stub_out_tdest">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_h2c_stub_out_tdest[15:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_h2c_stub_out_tdest[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_h2c_stub_out_tlast">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_h2c_stub_out_tlast</obj_property>
+      <obj_property name="ObjectShortName">QDMA_h2c_stub_out_tlast</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_h2c_stub_out_tready">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_h2c_stub_out_tready</obj_property>
+      <obj_property name="ObjectShortName">QDMA_h2c_stub_out_tready</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_h2c_stub_out_tuser">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_h2c_stub_out_tuser</obj_property>
+      <obj_property name="ObjectShortName">QDMA_h2c_stub_out_tuser</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_h2c_stub_out_tvalid">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_h2c_stub_out_tvalid</obj_property>
+      <obj_property name="ObjectShortName">QDMA_h2c_stub_out_tvalid</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="CMAC_in_tdata">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">CMAC_in_tdata[511:0]</obj_property>
+      <obj_property name="ObjectShortName">CMAC_in_tdata[511:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="CMAC_in_tkeep">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">CMAC_in_tkeep[63:0]</obj_property>
+      <obj_property name="ObjectShortName">CMAC_in_tkeep[63:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="CMAC_in_tlast">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">CMAC_in_tlast</obj_property>
+      <obj_property name="ObjectShortName">CMAC_in_tlast</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="CMAC_in_tready">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">CMAC_in_tready</obj_property>
+      <obj_property name="ObjectShortName">CMAC_in_tready</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="CMAC_in_tvalid">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">CMAC_in_tvalid</obj_property>
+      <obj_property name="ObjectShortName">CMAC_in_tvalid</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="CMAC_out_tdata">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">CMAC_out_tdata[511:0]</obj_property>
+      <obj_property name="ObjectShortName">CMAC_out_tdata[511:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="CMAC_out_tkeep">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">CMAC_out_tkeep[63:0]</obj_property>
+      <obj_property name="ObjectShortName">CMAC_out_tkeep[63:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="CMAC_out_tlast">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">CMAC_out_tlast</obj_property>
+      <obj_property name="ObjectShortName">CMAC_out_tlast</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="CMAC_out_tready">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">CMAC_out_tready</obj_property>
+      <obj_property name="ObjectShortName">CMAC_out_tready</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="CMAC_out_tvalid">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">CMAC_out_tvalid</obj_property>
+      <obj_property name="ObjectShortName">CMAC_out_tvalid</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_in_tdata">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_in_tdata[511:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_in_tdata[511:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_c2h_stub_in_tlast">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_in_tlast</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_in_tlast</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_c2h_stub_in_tready">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_in_tready</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_in_tready</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_c2h_stub_in_tuser">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_in_tuser</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_in_tuser</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_c2h_stub_in_tvalid">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_in_tvalid</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_in_tvalid</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_out_cmp_ctrl[cmpt_type]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_cmp_ctrl[cmpt_type][1:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_cmp_ctrl[cmpt_type][1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_out_cmp_ctrl[color_idx]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_cmp_ctrl[color_idx][2:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_cmp_ctrl[color_idx][2:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_out_cmp_ctrl[error_idx]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_cmp_ctrl[error_idx][2:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_cmp_ctrl[error_idx][2:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_c2h_stub_out_cmp_ctrl[marker]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_cmp_ctrl[marker]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_cmp_ctrl[marker]</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_out_cmp_ctrl[qid]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_cmp_ctrl[qid][10:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_cmp_ctrl[qid][10:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_c2h_stub_out_cmp_ctrl[user_trig]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_cmp_ctrl[user_trig]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_cmp_ctrl[user_trig]</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_out_cmp_ctrl[port_id]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_cmp_ctrl[port_id][2:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_cmp_ctrl[port_id][2:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_out_cmp_ctrl[wait_pld_pkt_id]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_cmp_ctrl[wait_pld_pkt_id][15:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_cmp_ctrl[wait_pld_pkt_id][15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_c2h_stub_out_cmp_data[cmp_ent][desc_used]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_cmp_data[cmp_ent][desc_used]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_cmp_data[cmp_ent][desc_used]</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_out_cmp_data[cmp_ent][len]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_cmp_data[cmp_ent][len][15:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_cmp_data[cmp_ent][len][15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_out_cmp_data[cmp_ent][rsv]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_cmp_data[cmp_ent][rsv][2:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_cmp_data[cmp_ent][rsv][2:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_out_cmp_data[cmp_ent][usr_data]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_cmp_data[cmp_ent][usr_data][107:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_cmp_data[cmp_ent][usr_data][107:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_out_cmp_data[cmp_size]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_cmp_data[cmp_size][1:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_cmp_data[cmp_size][1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_out_cmp_data[dpar]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_cmp_data[dpar][3:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_cmp_data[dpar][3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_c2h_stub_out_cmp_tvalid">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_cmp_tvalid</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_cmp_tvalid</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_c2h_stub_out_ctrl[has_cmpt]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_ctrl[has_cmpt]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_ctrl[has_cmpt]</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_out_ctrl[len]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_ctrl[len][15:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_ctrl[len][15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_c2h_stub_out_ctrl[marker]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_ctrl[marker]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_ctrl[marker]</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_out_ctrl[port_id]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_ctrl[port_id][2:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_ctrl[port_id][2:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_out_ctrl[qid]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_ctrl[qid][10:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_ctrl[qid][10:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_out_data[par]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_data[par][63:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_data[par][63:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_out_data[tdata]">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_data[tdata][511:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_data[tdata][511:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="QDMA_c2h_stub_out_mty">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_mty[5:0]</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_mty[5:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_c2h_stub_out_tlast">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_tlast</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_tlast</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_c2h_stub_out_tvalid">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_stub_out_tvalid</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_stub_out_tvalid</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_c2h_tready">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_tready</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_tready</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="QDMA_c2h_cmpt_tready">
+      <obj_property name="DisplayName">FullPathName</obj_property>
+      <obj_property name="ElementShortName">QDMA_c2h_cmpt_tready</obj_property>
+      <obj_property name="ObjectShortName">QDMA_c2h_cmpt_tready</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+</wave_config>

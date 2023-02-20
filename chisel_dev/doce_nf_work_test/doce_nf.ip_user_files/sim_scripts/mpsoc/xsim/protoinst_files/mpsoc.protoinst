@@ -1,0 +1,60 @@
+{
+	"version": "1.0",
+	"modules": {
+		"mpsoc": {
+			"proto_instances": {
+				"/axis_data_fifo_0/S_AXIS": {
+					"interface": "xilinx.com:interface:axis:1.0",
+					"ports": {
+						"ACLK": { "actual": "s_axis_aclk"},
+						"ARESETN": { "actual": "s_axis_aresetn"},
+						"TDATA": { "actual": "s_axis_tdata"},
+						"TKEEP": { "actual": "s_axis_tkeep"},
+						"TLAST": { "actual": "s_axis_tlast"},
+						"TREADY": { "actual": "s_axis_tready"},
+						"TVALID": { "actual": "s_axis_tvalid"}
+					}
+				},
+				"/axis_data_fifo_1/M_AXIS": {
+					"interface": "xilinx.com:interface:axis:1.0",
+					"ports": {
+						"ACLK": { "actual": "m_axis_aclk"},
+						"TDATA": { "actual": "m_axis_tdata"},
+						"TKEEP": { "actual": "m_axis_tkeep"},
+						"TLAST": { "actual": "m_axis_tlast"},
+						"TREADY": { "actual": "m_axis_tready"},
+						"TVALID": { "actual": "m_axis_tvalid"}
+					}
+				},
+				"/qdma_0/M_AXI_LITE": {
+					"interface": "xilinx.com:interface:aximm:1.0",
+					"ports": {
+						"ACLK": { "actual": "axi_aclk"},
+						"ARADDR": { "actual": "m_axil_araddr"},
+						"ARESETN": { "actual": "axi_aresetn"},
+						"ARPROT": { "actual": "m_axil_arprot"},
+						"ARREADY": { "actual": "m_axil_arready"},
+						"ARUSER": { "actual": "m_axil_aruser"},
+						"ARVALID": { "actual": "m_axil_arvalid"},
+						"AWADDR": { "actual": "m_axil_awaddr"},
+						"AWPROT": { "actual": "m_axil_awprot"},
+						"AWREADY": { "actual": "m_axil_awready"},
+						"AWUSER": { "actual": "m_axil_awuser"},
+						"AWVALID": { "actual": "m_axil_awvalid"},
+						"BREADY": { "actual": "m_axil_bready"},
+						"BRESP": { "actual": "m_axil_bresp"},
+						"BVALID": { "actual": "m_axil_bvalid"},
+						"RDATA": { "actual": "m_axil_rdata"},
+						"RREADY": { "actual": "m_axil_rready"},
+						"RRESP": { "actual": "m_axil_rresp"},
+						"RVALID": { "actual": "m_axil_rvalid"},
+						"WDATA": { "actual": "m_axil_wdata"},
+						"WREADY": { "actual": "m_axil_wready"},
+						"WSTRB": { "actual": "m_axil_wstrb"},
+						"WVALID": { "actual": "m_axil_wvalid"}
+					}
+				}
+			}
+		}
+	}
+}

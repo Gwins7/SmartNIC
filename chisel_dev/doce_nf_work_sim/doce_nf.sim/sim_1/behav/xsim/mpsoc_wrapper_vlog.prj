@@ -1,0 +1,17 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  --include "../../../../doce_nf.srcs/sources_1/imports" --include "../../../../doce_nf.gen/sources_1/ip/axis_data_fifo_0/hdl" \
+"../../../../doce_nf.gen/sources_1/ip/axis_data_fifo_0/sim/axis_data_fifo_0.v" \
+
+sv xil_defaultlib  --include "../../../../doce_nf.srcs/sources_1/imports" --include "../../../../doce_nf.gen/sources_1/ip/axis_data_fifo_0/hdl" \
+"../../../../doce_nf.srcs/sources_1/imports/qdma_stm_c2h_stub.sv" \
+"../../../../doce_nf.srcs/sources_1/imports/qdma_stm_h2c_stub.sv" \
+"../../../../doce_nf.srcs/sources_1/imports/mpsoc_wrapper.sv" \
+"../../../../doce_nf.srcs/sources_1/imports/package_handler.sv" \
+"../../../../doce_nf.srcs/sources_1/imports/qdma_fifo_lut.sv" \
+"../../../../doce_nf.srcs/sources_1/imports/smartnic_sim.sv" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort
