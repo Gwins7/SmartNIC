@@ -1,0 +1,31 @@
+#-----------------------------------------------------------
+# Vivado v2020.1 (64-bit)
+# SW Build 2902540 on Wed May 27 19:54:49 MDT 2020
+# IP Build 2902112 on Wed May 27 22:43:36 MDT 2020
+# Start of session at: Mon Feb 20 17:24:08 2023
+# Process ID: 25272
+# Current directory: D:/Chisel/chisel_dev/doce_nf_work_sim
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent24992 D:\Chisel\chisel_dev\doce_nf_work_sim\doce_nf.xpr
+# Log file: D:/Chisel/chisel_dev/doce_nf_work_sim/vivado.log
+# Journal file: D:/Chisel/chisel_dev/doce_nf_work_sim\vivado.jou
+#-----------------------------------------------------------
+start_guioopen_project D:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.xprllaunch_simulation
+ource smartnic_sim.tcl
+run 1 us
+relaunch_sim
+run 1 us
+run 1 us
+run 100 ns
+relaunch_sim
+run 100 ns
+current_wave_config {Untitled 1}
+add_wave {{/smartnic_sim/mpsoc_wrapper_sim/c2h_stub}} 
+relaunch_sim
+run 100 ns
+relaunch_sim
+run 100 ns
+current_wave_config {Untitled 1}
+add_wave {{/smartnic_sim/mpsoc_wrapper_sim/h2c_stub}} 
+add_wave {{/smartnic_sim}} 
+run 100 ns
+relaunch_sim

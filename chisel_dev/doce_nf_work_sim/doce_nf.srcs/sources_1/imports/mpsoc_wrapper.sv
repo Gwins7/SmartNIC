@@ -57,6 +57,7 @@ module mpsoc_wrapper
     output [31:0]  QDMA_c2h_err_counter,
 
     input [7:0] c2h_match_op,
+    input [31:0] c2h_match_arg0,
     input [31:0] c2h_match_arg1,
     input [31:0] c2h_match_arg2,
     input [31:0] c2h_match_arg3,
@@ -64,7 +65,6 @@ module mpsoc_wrapper
     input [31:0] c2h_match_arg5,
     input [31:0] c2h_match_arg6,
     input [31:0] c2h_match_arg7,
-    input [31:0] c2h_match_arg8,
     input reset_counter
     );
 
@@ -187,9 +187,14 @@ PackageHandler my_package_handler( //user_logic
     .io_QDMA_c2h_stub_in_tvalid  (QDMA_c2h_stub_in_tvalid),
 
     .io_extern_config_c2h_match_op     (c2h_match_op),
-    .io_extern_config_c2h_match_arg1     (c2h_match_arg1),
-    .io_extern_config_c2h_match_arg2     (c2h_match_arg2),
-    .io_extern_config_c2h_match_arg3     (c2h_match_arg3),
+    .io_extern_config_c2h_match_arg_0(c2h_match_arg0),
+    .io_extern_config_c2h_match_arg_1(c2h_match_arg1),
+    .io_extern_config_c2h_match_arg_2(c2h_match_arg2),
+    .io_extern_config_c2h_match_arg_3(c2h_match_arg3),
+    .io_extern_config_c2h_match_arg_4(c2h_match_arg4),
+    .io_extern_config_c2h_match_arg_5(c2h_match_arg5),
+    .io_extern_config_c2h_match_arg_6(c2h_match_arg6),
+    .io_extern_config_c2h_match_arg_7(c2h_match_arg7),
     .io_reset_counter            (reset_counter),
     .io_h2c_err_counter          (QDMA_h2c_err_counter),
     .io_h2c_pack_counter         (QDMA_h2c_pack_counter),
