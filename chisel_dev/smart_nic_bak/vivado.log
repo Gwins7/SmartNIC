@@ -1,0 +1,31 @@
+#-----------------------------------------------------------
+# Vivado v2020.1 (64-bit)
+# SW Build 2902540 on Wed May 27 19:54:35 MDT 2020
+# IP Build 2902112 on Wed May 27 22:43:36 MDT 2020
+# Start of session at: Wed Mar  1 11:15:06 2023
+# Process ID: 66499
+# Current directory: /home/huangtianyi/smart_nic_bak
+# Command line: vivado smart_nic.xpr
+# Log file: /home/huangtianyi/smart_nic_bak/vivado.log
+# Journal file: /home/huangtianyi/smart_nic_bak/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project smart_nic.xpr
+WARNING: [Board 49-91] Board repository path '/home/huangtianyi/open_nic/open-nic-shell-main/board_files' does not exist, it will not be used to search board files.
+INFO: [Project 1-313] Project file moved from '/home/huangtianyi/doce_nf_work_test' since last save.
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/huangtianyi/smart_nic_bak/smart_nic.srcs/sources_1/padding'.
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/huangtianyi/smart_nic_bak/smart_nic.srcs/sources_1/reset'.
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/opt/Xilinx/Vivado/2020.1/data/ip'.
+INFO: [PSU-0] Address Range of DDR (0x7ff00000 to 0x7fffffff) is reserved by PMU for internal purpose.
+INFO: [Ipptcl 7-1463] No Compatible Board Interface found. Board Tab not created in customize GUI
+INFO: [Ipptcl 7-1463] No Compatible Board Interface found. Board Tab not created in customize GUI
+INFO: [Ipptcl 7-1463] No Compatible Board Interface found. Board Tab not created in customize GUI
+INFO: [Device 21-403] Loading part xczu19eg-ffvc1760-2-e
+open_project: Time (s): cpu = 00:01:10 ; elapsed = 00:01:22 . Memory (MB): peak = 8293.781 ; gain = 1077.051 ; free physical = 110668 ; free virtual = 163405
+WARNING: [IP_Flow 19-3899] Cannot get the environment domain name variable for the component vendor name. Setting the vendor name to 'user.org'.
+reset_project
+exit
+INFO: [Common 17-206] Exiting Vivado at Wed Mar  1 11:18:03 2023...
