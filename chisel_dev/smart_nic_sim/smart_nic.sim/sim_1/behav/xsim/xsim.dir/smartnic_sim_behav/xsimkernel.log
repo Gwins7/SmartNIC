@@ -1,7 +1,7 @@
-Running: xsim.dir/smartnic_sim_behav/xsimk.exe -simmode gui -wdb smartnic_sim_behav.wdb -simrunnum 0 -socket 4195
+Running: xsim.dir/smartnic_sim_behav/xsimk.exe -simmode gui -wdb smartnic_sim_behav.wdb -simrunnum 0 -socket 11506
 Design successfully loaded
-Design Loading Memory Usage: 8552 KB (Peak: 8552 KB)
-Design Loading CPU Usage: 0 ms
+Design Loading Memory Usage: 9128 KB (Peak: 9128 KB)
+Design Loading CPU Usage: 15 ms
 Simulation completed
-Simulation Memory Usage: 11148 KB (Peak: 11148 KB)
-Simulation CPU Usage: 46 ms
+Simulation Memory Usage: 10464 KB (Peak: 10464 KB)
+Simulation CPU Usage: 15 ms

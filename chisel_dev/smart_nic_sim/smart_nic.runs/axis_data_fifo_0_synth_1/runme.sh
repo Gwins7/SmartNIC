@@ -24,7 +24,7 @@ else
 fi
 export LD_LIBRARY_PATH
 
-HD_PWD='D:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.runs/axis_data_fifo_0_synth_1'
+HD_PWD='D:/Chisel/chisel_dev/smart_nic_sim/smart_nic.runs/axis_data_fifo_0_synth_1'
 cd "$HD_PWD"
 
 HD_LOG=runme.log

@@ -4,7 +4,7 @@
 // attention for clk's posedge and negedge! 
 // ONLY THE SIGNALS IN CLK'S NEG PERIOD ARE VALID
 module smartnic_sim();
-    localparam pkt_burst_len = 16;
+    localparam pkt_burst_len = 1;
     
     reg QDMA_axi_aclk;
     reg QDMA_axi_aresetn;
@@ -155,7 +155,7 @@ end
 
 always @ (posedge QDMA_axi_aclk) begin
     if (!QDMA_axi_aresetn) begin
-        beat_counter = 8'd15;
+        beat_counter = pkt_burst_len-1;
         //wait_timer = 16'd0;
         //wait_status = 1'b0;
         send_pattern = 1'b0;
@@ -192,9 +192,9 @@ assign QDMA_h2c_zero_byte = 1'b0;
 //646c726f776f6c6c6568
 
 assign QDMA_h2c_tdata = (beat_counter == 0)?(
-(!send_pattern)?512'h646c726f_776f6c6c_65680000_00000839_02500000_00000000_00005000_e8030101_0f0f0002_0f0f0000_06400040_0001f203_00450008_a7a73b00_5452eefe_2e1f61e8:
-512'h00000000_00000000_00000000_00000839_02500000_00000000_00005000_e8030101_0f0f0002_0f0f0000_06400040_0001f203_00450008_a7a73b00_5452eefe_2e1f61e8):
-((beat_counter == 1)?((!send_pattern)?512'h646c:512'h0):512'h0);
+(!send_pattern)?512'h00000000_00000000_00000000_00000839_02500000_00000000_00005000_e8030101_0f0f0002_0f0f0000_06400040_00013200_00450008_a7a73b00_5452eefe_2e1f61e8:
+512'h00000000_00000000_00000000_00000839_02500000_00000000_00005000_e8030101_0f0f0002_0f0f0000_06400040_00013200_00450008_a7a73b00_5452eefe_2e1f61e8):
+((beat_counter == 1)?((!send_pattern)?512'h0:512'h0):512'h0);
 
 assign QDMA_h2c_tlast = (beat_counter == pkt_burst_len-1);
 assign QDMA_h2c_tvalid = QDMA_axi_aresetn/* & !wait_status*/;
@@ -223,17 +223,17 @@ assign QDMA_c2h_tready = 1'b1;
 // RxStrSearcher:   arg0:content;   arg1:mask
 // RxRSSHasher: arg1:hash_seed; arg2:hash_mask
 // RxRESearcher: arg0-15:DFA rule
-assign c2h_match_op   = 8'b11000000;
-assign c2h_match_arg0 = 32'h10006868;
-assign c2h_match_arg1 = 32'h21006565;
-assign c2h_match_arg2 = 32'h32006c6c;
-assign c2h_match_arg3 = 32'h43006c6c;
-assign c2h_match_arg4 = 32'h54006f6f;
-assign c2h_match_arg5 = 32'h65007777;
-assign c2h_match_arg6 = 32'h76006f6f;
-assign c2h_match_arg7 = 32'h87007272;
-assign c2h_match_arg8 = 32'h98006c6c;
-assign c2h_match_arg9 = 32'hf9006464;
+assign c2h_match_op   = 8'b01000000;
+assign c2h_match_arg0 = 32'h0;
+assign c2h_match_arg1 = 32'h0;
+assign c2h_match_arg2 = 32'h0;
+assign c2h_match_arg3 = 32'h0;
+assign c2h_match_arg4 = 32'h0;
+assign c2h_match_arg5 = 32'h0;
+assign c2h_match_arg6 = 32'h0;
+assign c2h_match_arg7 = 32'h0;
+assign c2h_match_arg8 = 32'h0;
+assign c2h_match_arg9 = 32'h0;
 assign c2h_match_arg10 = 32'h00000000;
 assign c2h_match_arg11 = 32'h00000000;
 assign c2h_match_arg12 = 32'h00000000;

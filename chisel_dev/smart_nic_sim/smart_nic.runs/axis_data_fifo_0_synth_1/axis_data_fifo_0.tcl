@@ -4,7 +4,7 @@
 
 set TIME_start [clock seconds] 
 namespace eval ::optrace {
-  variable script "D:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.runs/axis_data_fifo_0_synth_1/axis_data_fifo_0.tcl"
+  variable script "D:/Chisel/chisel_dev/smart_nic_sim/smart_nic.runs/axis_data_fifo_0_synth_1/axis_data_fifo_0.tcl"
   variable category "vivado_synth"
 }
 
@@ -81,23 +81,23 @@ set_param project.singleFileAddWarning.threshold 0
 set_param project.compositeFile.enableAutoGeneration 0
 set_param synth.vivado.isSynthRun true
 set_msg_config -source 4 -id {IP_Flow 19-2162} -severity warning -new_severity info
-set_property webtalk.parent_dir D:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.cache/wt [current_project]
-set_property parent.project_path D:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.xpr [current_project]
+set_property webtalk.parent_dir D:/Chisel/chisel_dev/smart_nic_sim/smart_nic.cache/wt [current_project]
+set_property parent.project_path D:/Chisel/chisel_dev/smart_nic_sim/smart_nic.xpr [current_project]
 set_property XPM_LIBRARIES {XPM_CDC XPM_FIFO} [current_project]
 set_property default_lib xil_defaultlib [current_project]
 set_property target_language Verilog [current_project]
 set_property board_part sugon:nf_card:part0:2.0 [current_project]
 set_property ip_repo_paths {
-  d:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.srcs/sources_1/padding
-  d:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.srcs/sources_1/reset
+  d:/Chisel/chisel_dev/smart_nic_sim/smart_nic.srcs/sources_1/padding
+  d:/Chisel/chisel_dev/smart_nic_sim/smart_nic.srcs/sources_1/reset
 } [current_project]
 update_ip_catalog
-set_property ip_output_repo d:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.cache/ip [current_project]
+set_property ip_output_repo d:/Chisel/chisel_dev/smart_nic_sim/smart_nic.cache/ip [current_project]
 set_property ip_cache_permissions {read write} [current_project]
 OPTRACE "Creating in-memory project" END { }
 OPTRACE "Adding files" START { }
-read_ip -quiet D:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.srcs/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0.xci
-set_property used_in_implementation false [get_files -all d:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_ooc.xdc]
+read_ip -quiet D:/Chisel/chisel_dev/smart_nic_sim/smart_nic.srcs/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0.xci
+set_property used_in_implementation false [get_files -all d:/Chisel/chisel_dev/smart_nic_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_ooc.xdc]
 
 OPTRACE "Adding files" END { }
 # Mark all dcp files as not used in implementation to prevent them from being
@@ -113,7 +113,7 @@ set_property used_in_implementation false [get_files dont_touch.xdc]
 set_param ips.enableIPCacheLiteLoad 1
 OPTRACE "Configure IP Cache" START { }
 
-set cached_ip [config_ip_cache -export -no_bom  -dir D:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.runs/axis_data_fifo_0_synth_1 -new_name axis_data_fifo_0 -ip [get_ips axis_data_fifo_0]]
+set cached_ip [config_ip_cache -export -no_bom  -dir D:/Chisel/chisel_dev/smart_nic_sim/smart_nic.runs/axis_data_fifo_0_synth_1 -new_name axis_data_fifo_0 -ip [get_ips axis_data_fifo_0]]
 
 OPTRACE "Configure IP Cache" END { }
 if { $cached_ip eq {} } {
@@ -165,32 +165,32 @@ create_report "axis_data_fifo_0_synth_1_synth_report_utilization_0" "report_util
 OPTRACE "synth reports" END { }
 
 if { [catch {
-  file copy -force D:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.runs/axis_data_fifo_0_synth_1/axis_data_fifo_0.dcp d:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0.dcp
+  file copy -force D:/Chisel/chisel_dev/smart_nic_sim/smart_nic.runs/axis_data_fifo_0_synth_1/axis_data_fifo_0.dcp d:/Chisel/chisel_dev/smart_nic_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0.dcp
 } _RESULT ] } { 
   send_msg_id runtcl-3 error "ERROR: Unable to successfully create or copy the sub-design checkpoint file."
   error "ERROR: Unable to successfully create or copy the sub-design checkpoint file."
 }
 
 if { [catch {
-  write_verilog -force -mode synth_stub d:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_stub.v
+  write_verilog -force -mode synth_stub d:/Chisel/chisel_dev/smart_nic_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_stub.v
 } _RESULT ] } { 
   puts "CRITICAL WARNING: Unable to successfully create a Verilog synthesis stub for the sub-design. This may lead to errors in top level synthesis of the design. Error reported: $_RESULT"
 }
 
 if { [catch {
-  write_vhdl -force -mode synth_stub d:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_stub.vhdl
+  write_vhdl -force -mode synth_stub d:/Chisel/chisel_dev/smart_nic_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_stub.vhdl
 } _RESULT ] } { 
   puts "CRITICAL WARNING: Unable to successfully create a VHDL synthesis stub for the sub-design. This may lead to errors in top level synthesis of the design. Error reported: $_RESULT"
 }
 
 if { [catch {
-  write_verilog -force -mode funcsim d:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_sim_netlist.v
+  write_verilog -force -mode funcsim d:/Chisel/chisel_dev/smart_nic_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_sim_netlist.v
 } _RESULT ] } { 
   puts "CRITICAL WARNING: Unable to successfully create the Verilog functional simulation sub-design file. Post-Synthesis Functional Simulation with this file may not be possible or may give incorrect results. Error reported: $_RESULT"
 }
 
 if { [catch {
-  write_vhdl -force -mode funcsim d:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_sim_netlist.vhdl
+  write_vhdl -force -mode funcsim d:/Chisel/chisel_dev/smart_nic_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_sim_netlist.vhdl
 } _RESULT ] } { 
   puts "CRITICAL WARNING: Unable to successfully create the VHDL functional simulation sub-design file. Post-Synthesis Functional Simulation with this file may not be possible or may give incorrect results. Error reported: $_RESULT"
 }
@@ -200,47 +200,47 @@ if { [catch {
 
 
 if { [catch {
-  file copy -force D:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.runs/axis_data_fifo_0_synth_1/axis_data_fifo_0.dcp d:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0.dcp
+  file copy -force D:/Chisel/chisel_dev/smart_nic_sim/smart_nic.runs/axis_data_fifo_0_synth_1/axis_data_fifo_0.dcp d:/Chisel/chisel_dev/smart_nic_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0.dcp
 } _RESULT ] } { 
   send_msg_id runtcl-3 error "ERROR: Unable to successfully create or copy the sub-design checkpoint file."
   error "ERROR: Unable to successfully create or copy the sub-design checkpoint file."
 }
 
 if { [catch {
-  file rename -force D:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.runs/axis_data_fifo_0_synth_1/axis_data_fifo_0_stub.v d:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_stub.v
+  file rename -force D:/Chisel/chisel_dev/smart_nic_sim/smart_nic.runs/axis_data_fifo_0_synth_1/axis_data_fifo_0_stub.v d:/Chisel/chisel_dev/smart_nic_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_stub.v
 } _RESULT ] } { 
   puts "CRITICAL WARNING: Unable to successfully create a Verilog synthesis stub for the sub-design. This may lead to errors in top level synthesis of the design. Error reported: $_RESULT"
 }
 
 if { [catch {
-  file rename -force D:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.runs/axis_data_fifo_0_synth_1/axis_data_fifo_0_stub.vhdl d:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_stub.vhdl
+  file rename -force D:/Chisel/chisel_dev/smart_nic_sim/smart_nic.runs/axis_data_fifo_0_synth_1/axis_data_fifo_0_stub.vhdl d:/Chisel/chisel_dev/smart_nic_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_stub.vhdl
 } _RESULT ] } { 
   puts "CRITICAL WARNING: Unable to successfully create a VHDL synthesis stub for the sub-design. This may lead to errors in top level synthesis of the design. Error reported: $_RESULT"
 }
 
 if { [catch {
-  file rename -force D:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.runs/axis_data_fifo_0_synth_1/axis_data_fifo_0_sim_netlist.v d:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_sim_netlist.v
+  file rename -force D:/Chisel/chisel_dev/smart_nic_sim/smart_nic.runs/axis_data_fifo_0_synth_1/axis_data_fifo_0_sim_netlist.v d:/Chisel/chisel_dev/smart_nic_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_sim_netlist.v
 } _RESULT ] } { 
   puts "CRITICAL WARNING: Unable to successfully create the Verilog functional simulation sub-design file. Post-Synthesis Functional Simulation with this file may not be possible or may give incorrect results. Error reported: $_RESULT"
 }
 
 if { [catch {
-  file rename -force D:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.runs/axis_data_fifo_0_synth_1/axis_data_fifo_0_sim_netlist.vhdl d:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_sim_netlist.vhdl
+  file rename -force D:/Chisel/chisel_dev/smart_nic_sim/smart_nic.runs/axis_data_fifo_0_synth_1/axis_data_fifo_0_sim_netlist.vhdl d:/Chisel/chisel_dev/smart_nic_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_sim_netlist.vhdl
 } _RESULT ] } { 
   puts "CRITICAL WARNING: Unable to successfully create the VHDL functional simulation sub-design file. Post-Synthesis Functional Simulation with this file may not be possible or may give incorrect results. Error reported: $_RESULT"
 }
 
 }; # end if cached_ip 
 
-if {[file isdir D:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.ip_user_files/ip/axis_data_fifo_0]} {
+if {[file isdir D:/Chisel/chisel_dev/smart_nic_sim/smart_nic.ip_user_files/ip/axis_data_fifo_0]} {
   catch { 
-    file copy -force d:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_stub.v D:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.ip_user_files/ip/axis_data_fifo_0
+    file copy -force d:/Chisel/chisel_dev/smart_nic_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_stub.v D:/Chisel/chisel_dev/smart_nic_sim/smart_nic.ip_user_files/ip/axis_data_fifo_0
   }
 }
 
-if {[file isdir D:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.ip_user_files/ip/axis_data_fifo_0]} {
+if {[file isdir D:/Chisel/chisel_dev/smart_nic_sim/smart_nic.ip_user_files/ip/axis_data_fifo_0]} {
   catch { 
-    file copy -force d:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_stub.vhdl D:/Chisel/chisel_dev/doce_nf_work_sim/doce_nf.ip_user_files/ip/axis_data_fifo_0
+    file copy -force d:/Chisel/chisel_dev/smart_nic_sim/doce_nf.gen/sources_1/ip/axis_data_fifo_0/axis_data_fifo_0_stub.vhdl D:/Chisel/chisel_dev/smart_nic_sim/smart_nic.ip_user_files/ip/axis_data_fifo_0
   }
 }
 file delete __synthesis_is_running__
