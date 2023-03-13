@@ -4,8 +4,9 @@
 // attention for clk's posedge and negedge! 
 // ONLY THE SIGNALS IN CLK'S NEG PERIOD ARE VALID
 module smartnic_sim();
-    localparam pkt_burst_len = 1;
-    
+    localparam pkt_burst_len = 24;
+    localparam wait_time = 50;
+    localparam send_pattern_num = 4;
     reg QDMA_axi_aclk;
     reg QDMA_axi_aresetn;
 
@@ -133,8 +134,8 @@ mpsoc_wrapper mpsoc_wrapper_sim
     );
 
 reg [7:0] beat_counter; 
-reg send_pattern;
-//reg [15:0] wait_timer;
+reg [3:0] send_pattern;
+reg [15:0] wait_timer;
 //reg wait_status;
 
  reg QDMA_c2h_cmpt_tready;
@@ -154,28 +155,27 @@ initial begin
 end
 
 always @ (posedge QDMA_axi_aclk) begin
+    if (!QDMA_axi_aresetn || wait_timer == wait_time) wait_timer = 1'b0;
+    else wait_timer = wait_timer + 1;
+end
+
+always @ (posedge QDMA_axi_aclk) begin
     if (!QDMA_axi_aresetn) begin
         beat_counter = pkt_burst_len-1;
-        //wait_timer = 16'd0;
-        //wait_status = 1'b0;
         send_pattern = 1'b0;
 //        QDMA_c2h_cmpt_tready = 1'b0;
     end
     else begin
         QDMA_c2h_cmpt_tready = c2h_shake_hand & QDMA_c2h_tlast;
-        if (h2c_shake_hand & QDMA_h2c_tlast) send_pattern = !send_pattern;
+        if (h2c_shake_hand & QDMA_h2c_tlast) begin
+            if (send_pattern == send_pattern_num - 1) send_pattern = 1'b0;
+            else send_pattern = send_pattern + 1'b1;
+        end
         if (QDMA_h2c_tready) begin
             if (beat_counter == pkt_burst_len-1) begin
                 beat_counter = 8'd0;
-                // wait_timer = 16'd0;
-                // wait_status = 1'b1;
             end
             else beat_counter = beat_counter + 8'd1; 
-            //else if (!wait_status) beat_counter = beat_counter + 8'd1; 
-            //else begin
-            //    wait_timer = wait_timer + 16'd1;
-            //    if (wait_timer == 16'd31) wait_status = 1'b0;
-            //end
         end
     end
 end
@@ -192,12 +192,15 @@ assign QDMA_h2c_zero_byte = 1'b0;
 //646c726f776f6c6c6568
 
 assign QDMA_h2c_tdata = (beat_counter == 0)?(
-(!send_pattern)?512'h00000000_00000000_00000000_00000839_02500000_00000000_00005000_e8030101_0f0f0002_0f0f0000_06400040_00013200_00450008_a7a73b00_5452eefe_2e1f61e8:
-512'h00000000_00000000_00000000_00000839_02500000_00000000_00005000_e8030101_0f0f0002_0f0f0000_06400040_00013200_00450008_a7a73b00_5452eefe_2e1f61e8):
-((beat_counter == 1)?((!send_pattern)?512'h0:512'h0):512'h0);
+    send_pattern == 0 ? 512'h00000000000000000000000000000839025000000000000000005000e80300010f0f00020f0f0000064000400001320000450008ffeeddccbbaa982216bae290:
+    send_pattern == 1 ? 512'h00000000000000000000000000000839025000000000000000005000e80301010f0f01020f0f0000064000400001320000450008ffeeddccbbaa982216bae290:
+    send_pattern == 2 ? 512'h00000000000000000000000000000839025000000000000000005000e80302010f0f02020f0f0000064000400001320000450008ffeeddccbbaa982216bae290:
+    send_pattern == 3 ? 512'h00000000000000000000000000000839025000000000000000005000e80303010f0f03020f0f0000064000400001320000450008ffeeddccbbaa982216bae290:
+    512'h0
+):512'h0;
 
 assign QDMA_h2c_tlast = (beat_counter == pkt_burst_len-1);
-assign QDMA_h2c_tvalid = QDMA_axi_aresetn/* & !wait_status*/;
+assign QDMA_h2c_tvalid = QDMA_axi_aresetn /*&& wait_timer == 0*//* & !wait_status*/;
 // assign QDMA_c2h_cmpt_tready = c2h_shake_hand & QDMA_c2h_tlast;
 assign QDMA_c2h_tready = 1'b1;
 
@@ -223,9 +226,9 @@ assign QDMA_c2h_tready = 1'b1;
 // RxStrSearcher:   arg0:content;   arg1:mask
 // RxRSSHasher: arg1:hash_seed; arg2:hash_mask
 // RxRESearcher: arg0-15:DFA rule
-assign c2h_match_op   = 8'b01000000;
-assign c2h_match_arg0 = 32'h0;
-assign c2h_match_arg1 = 32'h0;
+assign c2h_match_op   = 8'b01010000;
+assign c2h_match_arg0 = 32'h0f0f0200;
+assign c2h_match_arg1 = 32'hffffffff;
 assign c2h_match_arg2 = 32'h0;
 assign c2h_match_arg3 = 32'h0;
 assign c2h_match_arg4 = 32'h0;

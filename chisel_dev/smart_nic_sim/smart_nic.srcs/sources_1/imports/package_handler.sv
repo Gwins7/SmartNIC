@@ -798,7 +798,7 @@ module TxPipeline(
   assign tx_chksum_generator_io_in_extern_config_c2h_match_op = io_in_extern_config_c2h_match_op; // @[TxPipeline.scala 16:9]
   assign tx_chksum_generator_io_out_tready = io_out_tready; // @[TxPipeline.scala 17:30]
 endmodule
-module TxBufferFifo(
+module TxBufferFifo2(
   input          clock,
   input          reset,
   input  [511:0] io_in_tdata,
@@ -813,536 +813,109 @@ module TxBufferFifo(
   input          io_out_tready,
   output         io_out_tlast,
   input          io_reset_counter,
-  output [31:0]  io_h2c_pack_counter,
-  output [31:0]  io_h2c_err_counter
+  output [31:0]  io_h2c_pack_counter
 );
-`ifdef RANDOMIZE_MEM_INIT
-  reg [511:0] _RAND_0;
-`endif // RANDOMIZE_MEM_INIT
 `ifdef RANDOMIZE_REG_INIT
+  reg [31:0] _RAND_0;
   reg [31:0] _RAND_1;
-  reg [31:0] _RAND_2;
-  reg [31:0] _RAND_3;
-  reg [31:0] _RAND_4;
-  reg [31:0] _RAND_5;
-  reg [31:0] _RAND_6;
-  reg [31:0] _RAND_7;
-  reg [31:0] _RAND_8;
-  reg [31:0] _RAND_9;
-  reg [31:0] _RAND_10;
-  reg [31:0] _RAND_11;
-  reg [31:0] _RAND_12;
-  reg [31:0] _RAND_13;
-  reg [31:0] _RAND_14;
-  reg [31:0] _RAND_15;
-  reg [31:0] _RAND_16;
-  reg [31:0] _RAND_17;
-  reg [31:0] _RAND_18;
-  reg [31:0] _RAND_19;
-  reg [31:0] _RAND_20;
-  reg [31:0] _RAND_21;
-  reg [31:0] _RAND_22;
-  reg [31:0] _RAND_23;
 `endif // RANDOMIZE_REG_INIT
-  reg [511:0] data_buf_reg [0:63]; // @[TxBufferFifo.scala 39:33]
-  wire  data_buf_reg_rd_data_en; // @[TxBufferFifo.scala 39:33]
-  wire [5:0] data_buf_reg_rd_data_addr; // @[TxBufferFifo.scala 39:33]
-  wire [511:0] data_buf_reg_rd_data_data; // @[TxBufferFifo.scala 39:33]
-  wire [511:0] data_buf_reg_MPORT_data; // @[TxBufferFifo.scala 39:33]
-  wire [5:0] data_buf_reg_MPORT_addr; // @[TxBufferFifo.scala 39:33]
-  wire  data_buf_reg_MPORT_mask; // @[TxBufferFifo.scala 39:33]
-  wire  data_buf_reg_MPORT_en; // @[TxBufferFifo.scala 39:33]
-  reg  data_buf_reg_rd_data_en_pipe_0;
-  reg [5:0] data_buf_reg_rd_data_addr_pipe_0;
-  wire  in_shake_hand = io_in_tvalid & io_in_tready; // @[TxBufferFifo.scala 38:36]
-  reg  info_buf_reg_0_used; // @[TxBufferFifo.scala 42:29]
-  reg  info_buf_reg_0_valid; // @[TxBufferFifo.scala 42:29]
-  reg  info_buf_reg_0_chksum_offload; // @[TxBufferFifo.scala 42:29]
-  reg [1:0] info_buf_reg_0_pkt_type; // @[TxBufferFifo.scala 42:29]
-  reg [15:0] info_buf_reg_0_ip_chksum; // @[TxBufferFifo.scala 42:29]
-  reg [15:0] info_buf_reg_0_tcp_chksum; // @[TxBufferFifo.scala 42:29]
-  reg [5:0] info_buf_reg_0_burst; // @[TxBufferFifo.scala 42:29]
-  reg  info_buf_reg_1_used; // @[TxBufferFifo.scala 42:29]
-  reg  info_buf_reg_1_valid; // @[TxBufferFifo.scala 42:29]
-  reg  info_buf_reg_1_chksum_offload; // @[TxBufferFifo.scala 42:29]
-  reg [1:0] info_buf_reg_1_pkt_type; // @[TxBufferFifo.scala 42:29]
-  reg [15:0] info_buf_reg_1_ip_chksum; // @[TxBufferFifo.scala 42:29]
-  reg [15:0] info_buf_reg_1_tcp_chksum; // @[TxBufferFifo.scala 42:29]
-  reg [5:0] info_buf_reg_1_burst; // @[TxBufferFifo.scala 42:29]
-  reg [6:0] wr_index_reg; // @[TxBufferFifo.scala 43:29]
-  reg [6:0] rd_index_reg; // @[TxBufferFifo.scala 44:29]
-  reg [6:0] wr_pos_reg; // @[TxBufferFifo.scala 45:29]
-  reg [6:0] rd_pos_reg; // @[TxBufferFifo.scala 46:29]
-  wire  buf_full = info_buf_reg_0_valid & info_buf_reg_1_valid; // @[TxBufferFifo.scala 51:40]
-  reg [31:0] pack_counter; // @[TxBufferFifo.scala 54:29]
-  reg [31:0] err_counter; // @[TxBufferFifo.scala 55:28]
-  reg  is_overflowed; // @[TxBufferFifo.scala 62:30]
-  wire [15:0] _mid_ip_chksum_T_3 = io_in_tx_info_ip_chksum[31:16] + io_in_tx_info_ip_chksum[15:0]; // @[Misc.scala 14:14]
-  wire [15:0] _mid_tcp_chksum_T_3 = io_in_tx_info_tcp_chksum[31:16] + io_in_tx_info_tcp_chksum[15:0]; // @[Misc.scala 14:14]
-  wire [31:0] mid_ip_chksum = {{16'd0}, _mid_ip_chksum_T_3}; // @[TxBufferFifo.scala 65:27 66:17]
+  wire  tx_info_fifo_s_axis_aclk; // @[TxBufferFifo2.scala 20:28]
+  wire  tx_info_fifo_s_axis_aresetn; // @[TxBufferFifo2.scala 20:28]
+  wire [127:0] tx_info_fifo_s_axis_tdata; // @[TxBufferFifo2.scala 20:28]
+  wire  tx_info_fifo_s_axis_tlast; // @[TxBufferFifo2.scala 20:28]
+  wire  tx_info_fifo_s_axis_tready; // @[TxBufferFifo2.scala 20:28]
+  wire  tx_info_fifo_s_axis_tvalid; // @[TxBufferFifo2.scala 20:28]
+  wire [127:0] tx_info_fifo_m_axis_tdata; // @[TxBufferFifo2.scala 20:28]
+  wire  tx_info_fifo_m_axis_tlast; // @[TxBufferFifo2.scala 20:28]
+  wire  tx_info_fifo_m_axis_tready; // @[TxBufferFifo2.scala 20:28]
+  wire  tx_info_fifo_m_axis_tvalid; // @[TxBufferFifo2.scala 20:28]
+  wire  tx_data_fifo_s_axis_aclk; // @[TxBufferFifo2.scala 21:28]
+  wire  tx_data_fifo_s_axis_aresetn; // @[TxBufferFifo2.scala 21:28]
+  wire [511:0] tx_data_fifo_s_axis_tdata; // @[TxBufferFifo2.scala 21:28]
+  wire  tx_data_fifo_s_axis_tlast; // @[TxBufferFifo2.scala 21:28]
+  wire  tx_data_fifo_s_axis_tready; // @[TxBufferFifo2.scala 21:28]
+  wire  tx_data_fifo_s_axis_tvalid; // @[TxBufferFifo2.scala 21:28]
+  wire [511:0] tx_data_fifo_m_axis_tdata; // @[TxBufferFifo2.scala 21:28]
+  wire  tx_data_fifo_m_axis_tlast; // @[TxBufferFifo2.scala 21:28]
+  wire  tx_data_fifo_m_axis_tready; // @[TxBufferFifo2.scala 21:28]
+  wire  tx_data_fifo_m_axis_tvalid; // @[TxBufferFifo2.scala 21:28]
+  reg [31:0] c2h_pack_counter_reg; // @[TxBufferFifo2.scala 28:37]
+  wire  in_shake_hand = io_in_tvalid & io_in_tready; // @[TxBufferFifo2.scala 31:36]
+  wire  out_shake_hand = io_out_tvalid & io_out_tready; // @[TxBufferFifo2.scala 32:38]
+  wire [31:0] pkt_info_tcp_chksum = tx_info_fifo_m_axis_tdata[31:0]; // @[TxBufferFifo2.scala 34:55]
+  wire [31:0] pkt_info_ip_chksum = tx_info_fifo_m_axis_tdata[63:32]; // @[TxBufferFifo2.scala 34:55]
+  wire [15:0] _mid_ip_chksum_T_3 = pkt_info_ip_chksum[31:16] + pkt_info_ip_chksum[15:0]; // @[Misc.scala 14:14]
+  wire [15:0] _mid_tcp_chksum_T_3 = pkt_info_tcp_chksum[31:16] + pkt_info_tcp_chksum[15:0]; // @[Misc.scala 14:14]
+  wire [31:0] mid_ip_chksum = {{16'd0}, _mid_ip_chksum_T_3}; // @[TxBufferFifo2.scala 36:27 37:17]
   wire [15:0] _end_ip_chksum_T_3 = mid_ip_chksum[31:16] + mid_ip_chksum[15:0]; // @[Misc.scala 14:14]
-  wire [15:0] end_ip_chksum = ~_end_ip_chksum_T_3; // @[TxBufferFifo.scala 71:20]
-  wire [31:0] mid_tcp_chksum = {{16'd0}, _mid_tcp_chksum_T_3}; // @[TxBufferFifo.scala 67:28 68:18]
+  wire [15:0] end_ip_chksum = ~_end_ip_chksum_T_3; // @[TxBufferFifo2.scala 42:20]
+  wire [31:0] mid_tcp_chksum = {{16'd0}, _mid_tcp_chksum_T_3}; // @[TxBufferFifo2.scala 38:28 39:18]
   wire [15:0] _end_tcp_chksum_T_3 = mid_tcp_chksum[31:16] + mid_tcp_chksum[15:0]; // @[Misc.scala 14:14]
-  wire [15:0] end_tcp_chksum = ~_end_tcp_chksum_T_3; // @[TxBufferFifo.scala 73:21]
-  wire [31:0] _pack_counter_T_1 = pack_counter + 32'h1; // @[TxBufferFifo.scala 82:38]
-  wire [5:0] _GEN_2 = wr_index_reg[0] ? info_buf_reg_1_burst : info_buf_reg_0_burst; // @[TxBufferFifo.scala 84:{46,46}]
-  wire [11:0] _GEN_236 = {wr_index_reg, 5'h0}; // @[TxBufferFifo.scala 94:40]
-  wire [13:0] _wr_pos_reg_T = {{2'd0}, _GEN_236}; // @[TxBufferFifo.scala 94:40]
-  wire  _GEN_3 = ~io_in_tlast | is_overflowed; // @[TxBufferFifo.scala 86:29 87:25 62:30]
-  wire [13:0] _GEN_4 = ~io_in_tlast ? {{7'd0}, wr_pos_reg} : _wr_pos_reg_T; // @[TxBufferFifo.scala 45:29 86:29 94:24]
-  wire [31:0] _err_counter_T_1 = err_counter + 32'h1; // @[TxBufferFifo.scala 97:36]
-  wire [5:0] _GEN_5 = ~wr_index_reg[0] ? 6'h0 : info_buf_reg_0_burst; // @[TxBufferFifo.scala 42:29 98:{36,36}]
-  wire [5:0] _GEN_6 = wr_index_reg[0] ? 6'h0 : info_buf_reg_1_burst; // @[TxBufferFifo.scala 42:29 98:{36,36}]
-  wire [15:0] _GEN_7 = ~wr_index_reg[0] ? 16'h0 : info_buf_reg_0_tcp_chksum; // @[TxBufferFifo.scala 42:29 98:{36,36}]
-  wire [15:0] _GEN_8 = wr_index_reg[0] ? 16'h0 : info_buf_reg_1_tcp_chksum; // @[TxBufferFifo.scala 42:29 98:{36,36}]
-  wire [15:0] _GEN_9 = ~wr_index_reg[0] ? 16'h0 : info_buf_reg_0_ip_chksum; // @[TxBufferFifo.scala 42:29 98:{36,36}]
-  wire [15:0] _GEN_10 = wr_index_reg[0] ? 16'h0 : info_buf_reg_1_ip_chksum; // @[TxBufferFifo.scala 42:29 98:{36,36}]
-  wire [1:0] _GEN_11 = ~wr_index_reg[0] ? 2'h0 : info_buf_reg_0_pkt_type; // @[TxBufferFifo.scala 42:29 98:{36,36}]
-  wire [1:0] _GEN_12 = wr_index_reg[0] ? 2'h0 : info_buf_reg_1_pkt_type; // @[TxBufferFifo.scala 42:29 98:{36,36}]
-  wire  _GEN_13 = ~wr_index_reg[0] ? 1'h0 : info_buf_reg_0_chksum_offload; // @[TxBufferFifo.scala 42:29 98:{36,36}]
-  wire  _GEN_14 = wr_index_reg[0] ? 1'h0 : info_buf_reg_1_chksum_offload; // @[TxBufferFifo.scala 42:29 98:{36,36}]
-  wire  _GEN_15 = ~wr_index_reg[0] ? 1'h0 : info_buf_reg_0_valid; // @[TxBufferFifo.scala 42:29 98:{36,36}]
-  wire  _GEN_16 = wr_index_reg[0] ? 1'h0 : info_buf_reg_1_valid; // @[TxBufferFifo.scala 42:29 98:{36,36}]
-  wire  _GEN_17 = ~wr_index_reg[0] ? 1'h0 : info_buf_reg_0_used; // @[TxBufferFifo.scala 42:29 98:{36,36}]
-  wire  _GEN_18 = wr_index_reg[0] ? 1'h0 : info_buf_reg_1_used; // @[TxBufferFifo.scala 42:29 98:{36,36}]
-  wire  _T_4 = ~is_overflowed; // @[TxBufferFifo.scala 102:15]
-  wire  _GEN_20 = wr_index_reg[0] ? info_buf_reg_1_used : info_buf_reg_0_used; // @[TxBufferFifo.scala 104:{17,17}]
-  wire [15:0] _info_buf_reg_pkt_type_T_3 = {io_in_tdata[103:96],io_in_tdata[111:104]}; // @[Cat.scala 31:58]
-  wire  _info_buf_reg_pkt_type_T_4 = _info_buf_reg_pkt_type_T_3 == 16'h800; // @[TxBufferFifo.scala 105:94]
-  wire  _info_buf_reg_pkt_type_T_7 = _info_buf_reg_pkt_type_T_3 == 16'h800 & io_in_tdata[191:184] == 8'h6; // @[TxBufferFifo.scala 105:110]
-  wire [1:0] _info_buf_reg_pkt_type_T_13 = {_info_buf_reg_pkt_type_T_7,_info_buf_reg_pkt_type_T_4}; // @[Cat.scala 31:58]
-  wire [1:0] _GEN_21 = ~wr_index_reg[0] ? _info_buf_reg_pkt_type_T_13 : info_buf_reg_0_pkt_type; // @[TxBufferFifo.scala 105:{49,49} 42:29]
-  wire [1:0] _GEN_22 = wr_index_reg[0] ? _info_buf_reg_pkt_type_T_13 : info_buf_reg_1_pkt_type; // @[TxBufferFifo.scala 105:{49,49} 42:29]
-  wire  _GEN_237 = ~wr_index_reg[0]; // @[TxBufferFifo.scala 107:{45,45} 42:29]
-  wire  _GEN_23 = ~wr_index_reg[0] | info_buf_reg_0_used; // @[TxBufferFifo.scala 107:{45,45} 42:29]
-  wire  _GEN_24 = wr_index_reg[0] | info_buf_reg_1_used; // @[TxBufferFifo.scala 107:{45,45} 42:29]
-  wire  _GEN_25 = ~wr_index_reg[0] ? io_in_extern_config_c2h_match_op[6] : info_buf_reg_0_chksum_offload; // @[TxBufferFifo.scala 108:{55,55} 42:29]
-  wire  _GEN_26 = wr_index_reg[0] ? io_in_extern_config_c2h_match_op[6] : info_buf_reg_1_chksum_offload; // @[TxBufferFifo.scala 108:{55,55} 42:29]
-  wire [1:0] _GEN_27 = ~_GEN_20 ? _GEN_21 : info_buf_reg_0_pkt_type; // @[TxBufferFifo.scala 104:51 42:29]
-  wire [1:0] _GEN_28 = ~_GEN_20 ? _GEN_22 : info_buf_reg_1_pkt_type; // @[TxBufferFifo.scala 104:51 42:29]
-  wire  _GEN_29 = ~_GEN_20 ? _GEN_23 : info_buf_reg_0_used; // @[TxBufferFifo.scala 104:51 42:29]
-  wire  _GEN_30 = ~_GEN_20 ? _GEN_24 : info_buf_reg_1_used; // @[TxBufferFifo.scala 104:51 42:29]
-  wire  _GEN_31 = ~_GEN_20 ? _GEN_25 : info_buf_reg_0_chksum_offload; // @[TxBufferFifo.scala 104:51 42:29]
-  wire  _GEN_32 = ~_GEN_20 ? _GEN_26 : info_buf_reg_1_chksum_offload; // @[TxBufferFifo.scala 104:51 42:29]
-  wire [5:0] _info_buf_reg_burst_T_2 = _GEN_2 + 6'h1; // @[TxBufferFifo.scala 111:80]
-  wire [5:0] _GEN_35 = ~wr_index_reg[0] ? _info_buf_reg_burst_T_2 : info_buf_reg_0_burst; // @[TxBufferFifo.scala 111:{44,44} 42:29]
-  wire [5:0] _GEN_36 = wr_index_reg[0] ? _info_buf_reg_burst_T_2 : info_buf_reg_1_burst; // @[TxBufferFifo.scala 111:{44,44} 42:29]
-  wire  _GEN_37 = _GEN_237 | info_buf_reg_0_valid; // @[TxBufferFifo.scala 113:{46,46} 42:29]
-  wire  _GEN_38 = wr_index_reg[0] | info_buf_reg_1_valid; // @[TxBufferFifo.scala 113:{46,46} 42:29]
-  wire [15:0] _GEN_39 = ~wr_index_reg[0] ? end_ip_chksum : info_buf_reg_0_ip_chksum; // @[TxBufferFifo.scala 114:{50,50} 42:29]
-  wire [15:0] _GEN_40 = wr_index_reg[0] ? end_ip_chksum : info_buf_reg_1_ip_chksum; // @[TxBufferFifo.scala 114:{50,50} 42:29]
-  wire [15:0] _GEN_41 = ~wr_index_reg[0] ? end_tcp_chksum : info_buf_reg_0_tcp_chksum; // @[TxBufferFifo.scala 115:{51,51} 42:29]
-  wire [15:0] _GEN_42 = wr_index_reg[0] ? end_tcp_chksum : info_buf_reg_1_tcp_chksum; // @[TxBufferFifo.scala 115:{51,51} 42:29]
-  wire [6:0] _wr_index_reg_T_1 = wr_index_reg + 7'h1; // @[TxBufferFifo.scala 33:12]
-  wire [6:0] _wr_index_reg_T_2 = _wr_index_reg_T_1 & 7'h1; // @[TxBufferFifo.scala 33:19]
-  wire [11:0] _GEN_239 = {_wr_index_reg_T_2, 5'h0}; // @[TxBufferFifo.scala 117:51]
-  wire [13:0] _wr_pos_reg_T_4 = {{2'd0}, _GEN_239}; // @[TxBufferFifo.scala 117:51]
-  wire [6:0] _wr_pos_reg_T_6 = wr_pos_reg + 7'h1; // @[TxBufferFifo.scala 119:38]
-  wire  _GEN_43 = io_in_tlast ? _GEN_37 : info_buf_reg_0_valid; // @[TxBufferFifo.scala 112:30 42:29]
-  wire  _GEN_44 = io_in_tlast ? _GEN_38 : info_buf_reg_1_valid; // @[TxBufferFifo.scala 112:30 42:29]
-  wire [15:0] _GEN_45 = io_in_tlast ? _GEN_39 : info_buf_reg_0_ip_chksum; // @[TxBufferFifo.scala 112:30 42:29]
-  wire [15:0] _GEN_46 = io_in_tlast ? _GEN_40 : info_buf_reg_1_ip_chksum; // @[TxBufferFifo.scala 112:30 42:29]
-  wire [15:0] _GEN_47 = io_in_tlast ? _GEN_41 : info_buf_reg_0_tcp_chksum; // @[TxBufferFifo.scala 112:30 42:29]
-  wire [15:0] _GEN_48 = io_in_tlast ? _GEN_42 : info_buf_reg_1_tcp_chksum; // @[TxBufferFifo.scala 112:30 42:29]
-  wire [6:0] _GEN_49 = io_in_tlast ? _wr_index_reg_T_2 : wr_index_reg; // @[TxBufferFifo.scala 112:30 116:26 43:29]
-  wire [13:0] _GEN_50 = io_in_tlast ? _wr_pos_reg_T_4 : {{7'd0}, _wr_pos_reg_T_6}; // @[TxBufferFifo.scala 112:30 117:24 119:24]
-  wire  _GEN_51 = io_in_tlast ? 1'h0 : is_overflowed; // @[TxBufferFifo.scala 121:34 123:25 62:30]
-  wire [13:0] _GEN_52 = io_in_tlast ? _wr_pos_reg_T : {{7'd0}, wr_pos_reg}; // @[TxBufferFifo.scala 121:34 124:22 45:29]
-  wire [1:0] _GEN_53 = ~is_overflowed ? _GEN_27 : info_buf_reg_0_pkt_type; // @[TxBufferFifo.scala 102:30 42:29]
-  wire [1:0] _GEN_54 = ~is_overflowed ? _GEN_28 : info_buf_reg_1_pkt_type; // @[TxBufferFifo.scala 102:30 42:29]
-  wire  _GEN_55 = ~is_overflowed ? _GEN_29 : info_buf_reg_0_used; // @[TxBufferFifo.scala 102:30 42:29]
-  wire  _GEN_56 = ~is_overflowed ? _GEN_30 : info_buf_reg_1_used; // @[TxBufferFifo.scala 102:30 42:29]
-  wire  _GEN_57 = ~is_overflowed ? _GEN_31 : info_buf_reg_0_chksum_offload; // @[TxBufferFifo.scala 102:30 42:29]
-  wire  _GEN_58 = ~is_overflowed ? _GEN_32 : info_buf_reg_1_chksum_offload; // @[TxBufferFifo.scala 102:30 42:29]
-  wire [5:0] _GEN_64 = ~is_overflowed ? _GEN_35 : info_buf_reg_0_burst; // @[TxBufferFifo.scala 102:30 42:29]
-  wire [5:0] _GEN_65 = ~is_overflowed ? _GEN_36 : info_buf_reg_1_burst; // @[TxBufferFifo.scala 102:30 42:29]
-  wire  _GEN_66 = ~is_overflowed ? _GEN_43 : info_buf_reg_0_valid; // @[TxBufferFifo.scala 102:30 42:29]
-  wire  _GEN_67 = ~is_overflowed ? _GEN_44 : info_buf_reg_1_valid; // @[TxBufferFifo.scala 102:30 42:29]
-  wire [15:0] _GEN_68 = ~is_overflowed ? _GEN_45 : info_buf_reg_0_ip_chksum; // @[TxBufferFifo.scala 102:30 42:29]
-  wire [15:0] _GEN_69 = ~is_overflowed ? _GEN_46 : info_buf_reg_1_ip_chksum; // @[TxBufferFifo.scala 102:30 42:29]
-  wire [15:0] _GEN_70 = ~is_overflowed ? _GEN_47 : info_buf_reg_0_tcp_chksum; // @[TxBufferFifo.scala 102:30 42:29]
-  wire [15:0] _GEN_71 = ~is_overflowed ? _GEN_48 : info_buf_reg_1_tcp_chksum; // @[TxBufferFifo.scala 102:30 42:29]
-  wire [6:0] _GEN_72 = ~is_overflowed ? _GEN_49 : wr_index_reg; // @[TxBufferFifo.scala 102:30 43:29]
-  wire [13:0] _GEN_73 = ~is_overflowed ? _GEN_50 : _GEN_52; // @[TxBufferFifo.scala 102:30]
-  wire  _GEN_74 = ~is_overflowed ? is_overflowed : _GEN_51; // @[TxBufferFifo.scala 102:30 62:30]
-  wire [1:0] _GEN_75 = io_in_tvalid ? _GEN_53 : info_buf_reg_0_pkt_type; // @[TxBufferFifo.scala 100:31 42:29]
-  wire [1:0] _GEN_76 = io_in_tvalid ? _GEN_54 : info_buf_reg_1_pkt_type; // @[TxBufferFifo.scala 100:31 42:29]
-  wire  _GEN_77 = io_in_tvalid ? _GEN_55 : info_buf_reg_0_used; // @[TxBufferFifo.scala 100:31 42:29]
-  wire  _GEN_78 = io_in_tvalid ? _GEN_56 : info_buf_reg_1_used; // @[TxBufferFifo.scala 100:31 42:29]
-  wire  _GEN_79 = io_in_tvalid ? _GEN_57 : info_buf_reg_0_chksum_offload; // @[TxBufferFifo.scala 100:31 42:29]
-  wire  _GEN_80 = io_in_tvalid ? _GEN_58 : info_buf_reg_1_chksum_offload; // @[TxBufferFifo.scala 100:31 42:29]
-  wire  _GEN_83 = io_in_tvalid & _T_4; // @[TxBufferFifo.scala 100:31 39:33]
-  wire [5:0] _GEN_86 = io_in_tvalid ? _GEN_64 : info_buf_reg_0_burst; // @[TxBufferFifo.scala 100:31 42:29]
-  wire [5:0] _GEN_87 = io_in_tvalid ? _GEN_65 : info_buf_reg_1_burst; // @[TxBufferFifo.scala 100:31 42:29]
-  wire  _GEN_88 = io_in_tvalid ? _GEN_66 : info_buf_reg_0_valid; // @[TxBufferFifo.scala 100:31 42:29]
-  wire  _GEN_89 = io_in_tvalid ? _GEN_67 : info_buf_reg_1_valid; // @[TxBufferFifo.scala 100:31 42:29]
-  wire [15:0] _GEN_90 = io_in_tvalid ? _GEN_68 : info_buf_reg_0_ip_chksum; // @[TxBufferFifo.scala 100:31 42:29]
-  wire [15:0] _GEN_91 = io_in_tvalid ? _GEN_69 : info_buf_reg_1_ip_chksum; // @[TxBufferFifo.scala 100:31 42:29]
-  wire [15:0] _GEN_92 = io_in_tvalid ? _GEN_70 : info_buf_reg_0_tcp_chksum; // @[TxBufferFifo.scala 100:31 42:29]
-  wire [15:0] _GEN_93 = io_in_tvalid ? _GEN_71 : info_buf_reg_1_tcp_chksum; // @[TxBufferFifo.scala 100:31 42:29]
-  wire [6:0] _GEN_94 = io_in_tvalid ? _GEN_72 : wr_index_reg; // @[TxBufferFifo.scala 100:31 43:29]
-  wire [13:0] _GEN_95 = io_in_tvalid ? _GEN_73 : {{7'd0}, wr_pos_reg}; // @[TxBufferFifo.scala 100:31 45:29]
-  wire  _GEN_96 = io_in_tvalid ? _GEN_74 : is_overflowed; // @[TxBufferFifo.scala 100:31 62:30]
-  wire [13:0] _GEN_98 = _GEN_2 == 6'h20 ? _GEN_4 : _GEN_95; // @[TxBufferFifo.scala 84:63]
-  wire [5:0] _GEN_100 = _GEN_2 == 6'h20 ? _GEN_5 : _GEN_86; // @[TxBufferFifo.scala 84:63]
-  wire [5:0] _GEN_101 = _GEN_2 == 6'h20 ? _GEN_6 : _GEN_87; // @[TxBufferFifo.scala 84:63]
-  wire [15:0] _GEN_102 = _GEN_2 == 6'h20 ? _GEN_7 : _GEN_92; // @[TxBufferFifo.scala 84:63]
-  wire [15:0] _GEN_103 = _GEN_2 == 6'h20 ? _GEN_8 : _GEN_93; // @[TxBufferFifo.scala 84:63]
-  wire [15:0] _GEN_104 = _GEN_2 == 6'h20 ? _GEN_9 : _GEN_90; // @[TxBufferFifo.scala 84:63]
-  wire [15:0] _GEN_105 = _GEN_2 == 6'h20 ? _GEN_10 : _GEN_91; // @[TxBufferFifo.scala 84:63]
-  wire [1:0] _GEN_106 = _GEN_2 == 6'h20 ? _GEN_11 : _GEN_75; // @[TxBufferFifo.scala 84:63]
-  wire [1:0] _GEN_107 = _GEN_2 == 6'h20 ? _GEN_12 : _GEN_76; // @[TxBufferFifo.scala 84:63]
-  wire  _GEN_108 = _GEN_2 == 6'h20 ? _GEN_13 : _GEN_79; // @[TxBufferFifo.scala 84:63]
-  wire  _GEN_109 = _GEN_2 == 6'h20 ? _GEN_14 : _GEN_80; // @[TxBufferFifo.scala 84:63]
-  wire  _GEN_110 = _GEN_2 == 6'h20 ? _GEN_15 : _GEN_88; // @[TxBufferFifo.scala 84:63]
-  wire  _GEN_111 = _GEN_2 == 6'h20 ? _GEN_16 : _GEN_89; // @[TxBufferFifo.scala 84:63]
-  wire  _GEN_112 = _GEN_2 == 6'h20 ? _GEN_17 : _GEN_77; // @[TxBufferFifo.scala 84:63]
-  wire  _GEN_113 = _GEN_2 == 6'h20 ? _GEN_18 : _GEN_78; // @[TxBufferFifo.scala 84:63]
-  wire  _GEN_116 = _GEN_2 == 6'h20 ? 1'h0 : _GEN_83; // @[TxBufferFifo.scala 39:33 84:63]
-  wire [13:0] _GEN_122 = in_shake_hand ? _GEN_98 : {{7'd0}, wr_pos_reg}; // @[TxBufferFifo.scala 45:29 80:31]
-  wire [5:0] _GEN_124 = in_shake_hand ? _GEN_100 : info_buf_reg_0_burst; // @[TxBufferFifo.scala 42:29 80:31]
-  wire [5:0] _GEN_125 = in_shake_hand ? _GEN_101 : info_buf_reg_1_burst; // @[TxBufferFifo.scala 42:29 80:31]
-  wire [15:0] _GEN_126 = in_shake_hand ? _GEN_102 : info_buf_reg_0_tcp_chksum; // @[TxBufferFifo.scala 42:29 80:31]
-  wire [15:0] _GEN_127 = in_shake_hand ? _GEN_103 : info_buf_reg_1_tcp_chksum; // @[TxBufferFifo.scala 42:29 80:31]
-  wire [15:0] _GEN_128 = in_shake_hand ? _GEN_104 : info_buf_reg_0_ip_chksum; // @[TxBufferFifo.scala 42:29 80:31]
-  wire [15:0] _GEN_129 = in_shake_hand ? _GEN_105 : info_buf_reg_1_ip_chksum; // @[TxBufferFifo.scala 42:29 80:31]
-  wire [1:0] _GEN_130 = in_shake_hand ? _GEN_106 : info_buf_reg_0_pkt_type; // @[TxBufferFifo.scala 42:29 80:31]
-  wire [1:0] _GEN_131 = in_shake_hand ? _GEN_107 : info_buf_reg_1_pkt_type; // @[TxBufferFifo.scala 42:29 80:31]
-  wire  _GEN_132 = in_shake_hand ? _GEN_108 : info_buf_reg_0_chksum_offload; // @[TxBufferFifo.scala 42:29 80:31]
-  wire  _GEN_133 = in_shake_hand ? _GEN_109 : info_buf_reg_1_chksum_offload; // @[TxBufferFifo.scala 42:29 80:31]
-  wire  _GEN_134 = in_shake_hand ? _GEN_110 : info_buf_reg_0_valid; // @[TxBufferFifo.scala 42:29 80:31]
-  wire  _GEN_135 = in_shake_hand ? _GEN_111 : info_buf_reg_1_valid; // @[TxBufferFifo.scala 42:29 80:31]
-  wire  _GEN_136 = in_shake_hand ? _GEN_112 : info_buf_reg_0_used; // @[TxBufferFifo.scala 42:29 80:31]
-  wire  _GEN_137 = in_shake_hand ? _GEN_113 : info_buf_reg_1_used; // @[TxBufferFifo.scala 42:29 80:31]
-  wire  _GEN_140 = in_shake_hand & _GEN_116; // @[TxBufferFifo.scala 80:31 39:33]
-  wire [13:0] _GEN_147 = io_reset_counter ? {{7'd0}, wr_pos_reg} : _GEN_122; // @[TxBufferFifo.scala 76:26 45:29]
-  wire [5:0] _GEN_148 = io_reset_counter ? info_buf_reg_0_burst : _GEN_124; // @[TxBufferFifo.scala 76:26 42:29]
-  wire [5:0] _GEN_149 = io_reset_counter ? info_buf_reg_1_burst : _GEN_125; // @[TxBufferFifo.scala 76:26 42:29]
-  wire [15:0] _GEN_150 = io_reset_counter ? info_buf_reg_0_tcp_chksum : _GEN_126; // @[TxBufferFifo.scala 76:26 42:29]
-  wire [15:0] _GEN_151 = io_reset_counter ? info_buf_reg_1_tcp_chksum : _GEN_127; // @[TxBufferFifo.scala 76:26 42:29]
-  wire [15:0] _GEN_152 = io_reset_counter ? info_buf_reg_0_ip_chksum : _GEN_128; // @[TxBufferFifo.scala 76:26 42:29]
-  wire [15:0] _GEN_153 = io_reset_counter ? info_buf_reg_1_ip_chksum : _GEN_129; // @[TxBufferFifo.scala 76:26 42:29]
-  wire [1:0] _GEN_154 = io_reset_counter ? info_buf_reg_0_pkt_type : _GEN_130; // @[TxBufferFifo.scala 76:26 42:29]
-  wire [1:0] _GEN_155 = io_reset_counter ? info_buf_reg_1_pkt_type : _GEN_131; // @[TxBufferFifo.scala 76:26 42:29]
-  wire  _GEN_156 = io_reset_counter ? info_buf_reg_0_chksum_offload : _GEN_132; // @[TxBufferFifo.scala 76:26 42:29]
-  wire  _GEN_157 = io_reset_counter ? info_buf_reg_1_chksum_offload : _GEN_133; // @[TxBufferFifo.scala 76:26 42:29]
-  wire  _GEN_158 = io_reset_counter ? info_buf_reg_0_valid : _GEN_134; // @[TxBufferFifo.scala 76:26 42:29]
-  wire  _GEN_159 = io_reset_counter ? info_buf_reg_1_valid : _GEN_135; // @[TxBufferFifo.scala 76:26 42:29]
-  wire  _GEN_160 = io_reset_counter ? info_buf_reg_0_used : _GEN_136; // @[TxBufferFifo.scala 76:26 42:29]
-  wire  _GEN_161 = io_reset_counter ? info_buf_reg_1_used : _GEN_137; // @[TxBufferFifo.scala 76:26 42:29]
-  wire  out_shake_hand = io_out_tready & io_out_tvalid; // @[TxBufferFifo.scala 130:38]
-  wire [5:0] _GEN_171 = rd_index_reg[0] ? info_buf_reg_1_burst : info_buf_reg_0_burst; // @[TxBufferFifo.scala 135:{70,70}]
-  wire  _io_out_tlast_T_1 = _GEN_171 == 6'h1; // @[TxBufferFifo.scala 135:70]
-  wire [6:0] _rd_pos_next_T_1 = rd_index_reg + 7'h1; // @[TxBufferFifo.scala 33:12]
-  wire [6:0] _rd_pos_next_T_2 = _rd_pos_next_T_1 & 7'h1; // @[TxBufferFifo.scala 33:19]
-  wire [11:0] _GEN_241 = {_rd_pos_next_T_2, 5'h0}; // @[TxBufferFifo.scala 165:44]
-  wire [13:0] _rd_pos_next_T_3 = {{2'd0}, _GEN_241}; // @[TxBufferFifo.scala 165:44]
-  wire [6:0] _rd_pos_next_T_5 = rd_pos_reg + 7'h1; // @[TxBufferFifo.scala 167:31]
-  wire [13:0] _GEN_235 = _io_out_tlast_T_1 ? _rd_pos_next_T_3 : {{7'd0}, _rd_pos_next_T_5}; // @[TxBufferFifo.scala 164:51 165:17 167:17]
-  wire [6:0] rd_pos_next = _GEN_235[6:0];
-  wire [6:0] _rd_data_T = out_shake_hand ? rd_pos_next : rd_pos_reg; // @[TxBufferFifo.scala 138:33]
-  wire [15:0] _GEN_173 = rd_index_reg[0] ? info_buf_reg_1_ip_chksum : info_buf_reg_0_ip_chksum; // @[Misc.scala 8:{10,10}]
-  wire [15:0] rev_ip_chksum = {_GEN_173[7:0],_GEN_173[15:8]}; // @[Cat.scala 31:58]
-  wire [15:0] _GEN_175 = rd_index_reg[0] ? info_buf_reg_1_tcp_chksum : info_buf_reg_0_tcp_chksum; // @[Misc.scala 8:{10,10}]
-  wire [15:0] rev_tcp_chksum = {_GEN_175[7:0],_GEN_175[15:8]}; // @[Cat.scala 31:58]
-  wire [11:0] _GEN_242 = {rd_index_reg, 5'h0}; // @[TxBufferFifo.scala 146:52]
-  wire [13:0] _io_out_tdata_T = {{2'd0}, _GEN_242}; // @[TxBufferFifo.scala 146:52]
-  wire [13:0] _GEN_243 = {{7'd0}, rd_pos_reg}; // @[TxBufferFifo.scala 146:34]
-  wire  _GEN_177 = rd_index_reg[0] ? info_buf_reg_1_chksum_offload : info_buf_reg_0_chksum_offload; // @[TxBufferFifo.scala 146:{86,86}]
-  wire [1:0] _GEN_179 = rd_index_reg[0] ? info_buf_reg_1_pkt_type : info_buf_reg_0_pkt_type; // @[TxBufferFifo.scala 148:{66,66}]
-  wire [15:0] _io_out_tdata_T_8 = _GEN_179[1] ? rev_tcp_chksum : data_buf_reg_rd_data_data[415:400]; // @[TxBufferFifo.scala 148:30]
-  wire [15:0] _io_out_tdata_T_13 = _GEN_179[0] ? rev_ip_chksum : data_buf_reg_rd_data_data[207:192]; // @[TxBufferFifo.scala 150:30]
-  wire [511:0] _io_out_tdata_T_15 = {data_buf_reg_rd_data_data[511:416],_io_out_tdata_T_8,data_buf_reg_rd_data_data[399:
-    208],_io_out_tdata_T_13,data_buf_reg_rd_data_data[191:0]}; // @[Cat.scala 31:58]
-  wire [5:0] _info_buf_reg_burst_T_5 = _GEN_171 - 6'h1; // @[TxBufferFifo.scala 161:76]
-  wire [13:0] _GEN_244 = reset ? 14'h0 : _GEN_147; // @[TxBufferFifo.scala 45:{29,29}]
-  assign data_buf_reg_rd_data_en = data_buf_reg_rd_data_en_pipe_0;
-  assign data_buf_reg_rd_data_addr = data_buf_reg_rd_data_addr_pipe_0;
-  assign data_buf_reg_rd_data_data = data_buf_reg[data_buf_reg_rd_data_addr]; // @[TxBufferFifo.scala 39:33]
-  assign data_buf_reg_MPORT_data = io_in_tdata;
-  assign data_buf_reg_MPORT_addr = wr_pos_reg[5:0];
-  assign data_buf_reg_MPORT_mask = 1'h1;
-  assign data_buf_reg_MPORT_en = io_reset_counter ? 1'h0 : _GEN_140;
-  assign io_in_tready = ~buf_full; // @[TxBufferFifo.scala 53:19]
-  assign io_out_tdata = _GEN_243 == _io_out_tdata_T & _GEN_177 ? _io_out_tdata_T_15 : data_buf_reg_rd_data_data; // @[TxBufferFifo.scala 146:22]
-  assign io_out_tvalid = rd_index_reg[0] ? info_buf_reg_1_valid : info_buf_reg_0_valid; // @[TxBufferFifo.scala 134:{17,17}]
-  assign io_out_tlast = io_out_tvalid & _GEN_171 == 6'h1; // @[TxBufferFifo.scala 135:34]
-  assign io_h2c_pack_counter = pack_counter; // @[TxBufferFifo.scala 57:23]
-  assign io_h2c_err_counter = err_counter; // @[TxBufferFifo.scala 58:22]
+  wire [15:0] end_tcp_chksum = ~_end_tcp_chksum_T_3; // @[TxBufferFifo2.scala 44:21]
+  wire [31:0] _c2h_pack_counter_reg_T_1 = c2h_pack_counter_reg + 32'h1; // @[TxBufferFifo2.scala 51:52]
+  wire [63:0] _tx_info_fifo_io_s_axis_tdata_T = {io_in_tx_info_ip_chksum,io_in_tx_info_tcp_chksum}; // @[TxBufferFifo2.scala 64:49]
+  reg  out_first_beat_reg; // @[Reg.scala 28:20]
+  wire  _GEN_3 = out_shake_hand ? io_out_tlast : out_first_beat_reg; // @[Reg.scala 29:18 28:20 29:22]
+  wire [15:0] rev_ip_chksum = {end_ip_chksum[7:0],end_ip_chksum[15:8]}; // @[Cat.scala 31:58]
+  wire [15:0] rev_tcp_chksum = {end_tcp_chksum[7:0],end_tcp_chksum[15:8]}; // @[Cat.scala 31:58]
+  wire [15:0] _io_out_tdata_T_6 = {tx_data_fifo_m_axis_tdata[103:96],tx_data_fifo_m_axis_tdata[111:104]}; // @[Cat.scala 31:58]
+  wire  _io_out_tdata_T_7 = _io_out_tdata_T_6 == 16'h800; // @[TxBufferFifo2.scala 81:68]
+  wire [15:0] _io_out_tdata_T_12 = _io_out_tdata_T_6 == 16'h800 & tx_data_fifo_m_axis_tdata[191:184] == 8'h6 ?
+    rev_tcp_chksum : tx_data_fifo_m_axis_tdata[415:400]; // @[TxBufferFifo2.scala 81:12]
+  wire [15:0] _io_out_tdata_T_20 = _io_out_tdata_T_7 ? rev_ip_chksum : tx_data_fifo_m_axis_tdata[207:192]; // @[TxBufferFifo2.scala 83:12]
+  wire [511:0] _io_out_tdata_T_22 = {tx_data_fifo_m_axis_tdata[511:416],_io_out_tdata_T_12,tx_data_fifo_m_axis_tdata[399
+    :208],_io_out_tdata_T_20,tx_data_fifo_m_axis_tdata[191:0]}; // @[Cat.scala 31:58]
+  BufferFifoIP_128 tx_info_fifo ( // @[TxBufferFifo2.scala 20:28]
+    .s_axis_aclk(tx_info_fifo_s_axis_aclk),
+    .s_axis_aresetn(tx_info_fifo_s_axis_aresetn),
+    .s_axis_tdata(tx_info_fifo_s_axis_tdata),
+    .s_axis_tlast(tx_info_fifo_s_axis_tlast),
+    .s_axis_tready(tx_info_fifo_s_axis_tready),
+    .s_axis_tvalid(tx_info_fifo_s_axis_tvalid),
+    .m_axis_tdata(tx_info_fifo_m_axis_tdata),
+    .m_axis_tlast(tx_info_fifo_m_axis_tlast),
+    .m_axis_tready(tx_info_fifo_m_axis_tready),
+    .m_axis_tvalid(tx_info_fifo_m_axis_tvalid)
+  );
+  BufferFifoIP_512 tx_data_fifo ( // @[TxBufferFifo2.scala 21:28]
+    .s_axis_aclk(tx_data_fifo_s_axis_aclk),
+    .s_axis_aresetn(tx_data_fifo_s_axis_aresetn),
+    .s_axis_tdata(tx_data_fifo_s_axis_tdata),
+    .s_axis_tlast(tx_data_fifo_s_axis_tlast),
+    .s_axis_tready(tx_data_fifo_s_axis_tready),
+    .s_axis_tvalid(tx_data_fifo_s_axis_tvalid),
+    .m_axis_tdata(tx_data_fifo_m_axis_tdata),
+    .m_axis_tlast(tx_data_fifo_m_axis_tlast),
+    .m_axis_tready(tx_data_fifo_m_axis_tready),
+    .m_axis_tvalid(tx_data_fifo_m_axis_tvalid)
+  );
+  assign io_in_tready = tx_data_fifo_s_axis_tready & tx_info_fifo_s_axis_tready; // @[TxBufferFifo2.scala 68:49]
+  assign io_out_tdata = out_first_beat_reg & io_in_extern_config_c2h_match_op[6] ? _io_out_tdata_T_22 :
+    tx_data_fifo_m_axis_tdata; // @[TxBufferFifo2.scala 79:22]
+  assign io_out_tvalid = tx_data_fifo_m_axis_tvalid; // @[TxBufferFifo2.scala 87:17]
+  assign io_out_tlast = tx_data_fifo_m_axis_tlast; // @[TxBufferFifo2.scala 88:16]
+  assign io_h2c_pack_counter = c2h_pack_counter_reg; // @[TxBufferFifo2.scala 56:23]
+  assign tx_info_fifo_s_axis_aclk = clock; // @[TxBufferFifo2.scala 23:31]
+  assign tx_info_fifo_s_axis_aresetn = ~reset; // @[TxBufferFifo2.scala 25:37]
+  assign tx_info_fifo_s_axis_tdata = {{64'd0}, _tx_info_fifo_io_s_axis_tdata_T}; // @[TxBufferFifo2.scala 64:32]
+  assign tx_info_fifo_s_axis_tlast = io_in_tlast & in_shake_hand; // @[TxBufferFifo2.scala 66:48]
+  assign tx_info_fifo_s_axis_tvalid = io_in_tlast & in_shake_hand; // @[TxBufferFifo2.scala 65:48]
+  assign tx_info_fifo_m_axis_tready = out_shake_hand & io_out_tlast; // @[TxBufferFifo2.scala 72:51]
+  assign tx_data_fifo_s_axis_aclk = clock; // @[TxBufferFifo2.scala 24:31]
+  assign tx_data_fifo_s_axis_aresetn = ~reset; // @[TxBufferFifo2.scala 26:37]
+  assign tx_data_fifo_s_axis_tdata = io_in_tdata; // @[TxBufferFifo2.scala 60:32]
+  assign tx_data_fifo_s_axis_tlast = io_in_tlast; // @[TxBufferFifo2.scala 62:32]
+  assign tx_data_fifo_s_axis_tvalid = io_in_tvalid & io_in_tready; // @[TxBufferFifo2.scala 31:36]
+  assign tx_data_fifo_m_axis_tready = io_out_tready; // @[TxBufferFifo2.scala 71:33]
   always @(posedge clock) begin
-    if (data_buf_reg_MPORT_en & data_buf_reg_MPORT_mask) begin
-      data_buf_reg[data_buf_reg_MPORT_addr] <= data_buf_reg_MPORT_data; // @[TxBufferFifo.scala 39:33]
+    if (reset) begin // @[TxBufferFifo2.scala 28:37]
+      c2h_pack_counter_reg <= 32'h0; // @[TxBufferFifo2.scala 28:37]
+    end else if (io_reset_counter) begin // @[TxBufferFifo2.scala 46:26]
+      c2h_pack_counter_reg <= 32'h0; // @[TxBufferFifo2.scala 47:26]
+    end else if (in_shake_hand & io_in_tlast) begin // @[TxBufferFifo2.scala 50:39]
+      c2h_pack_counter_reg <= _c2h_pack_counter_reg_T_1; // @[TxBufferFifo2.scala 51:28]
     end
-    data_buf_reg_rd_data_en_pipe_0 <= 1'h1;
-    if (1'h1) begin
-      data_buf_reg_rd_data_addr_pipe_0 <= _rd_data_T[5:0];
-    end
-    if (reset) begin // @[TxBufferFifo.scala 42:29]
-      info_buf_reg_0_used <= 1'h0; // @[TxBufferFifo.scala 42:29]
-    end else if (out_shake_hand) begin // @[TxBufferFifo.scala 153:24]
-      if (_io_out_tlast_T_1) begin // @[TxBufferFifo.scala 157:53]
-        if (~rd_index_reg[0]) begin // @[TxBufferFifo.scala 158:34]
-          info_buf_reg_0_used <= 1'h0; // @[TxBufferFifo.scala 158:34]
-        end else begin
-          info_buf_reg_0_used <= _GEN_160;
-        end
-      end else begin
-        info_buf_reg_0_used <= _GEN_160;
-      end
-    end else begin
-      info_buf_reg_0_used <= _GEN_160;
-    end
-    if (reset) begin // @[TxBufferFifo.scala 42:29]
-      info_buf_reg_0_valid <= 1'h0; // @[TxBufferFifo.scala 42:29]
-    end else if (out_shake_hand) begin // @[TxBufferFifo.scala 153:24]
-      if (_io_out_tlast_T_1) begin // @[TxBufferFifo.scala 157:53]
-        if (~rd_index_reg[0]) begin // @[TxBufferFifo.scala 158:34]
-          info_buf_reg_0_valid <= 1'h0; // @[TxBufferFifo.scala 158:34]
-        end else begin
-          info_buf_reg_0_valid <= _GEN_158;
-        end
-      end else begin
-        info_buf_reg_0_valid <= _GEN_158;
-      end
-    end else begin
-      info_buf_reg_0_valid <= _GEN_158;
-    end
-    if (reset) begin // @[TxBufferFifo.scala 42:29]
-      info_buf_reg_0_chksum_offload <= 1'h0; // @[TxBufferFifo.scala 42:29]
-    end else if (out_shake_hand) begin // @[TxBufferFifo.scala 153:24]
-      if (_io_out_tlast_T_1) begin // @[TxBufferFifo.scala 157:53]
-        if (~rd_index_reg[0]) begin // @[TxBufferFifo.scala 158:34]
-          info_buf_reg_0_chksum_offload <= 1'h0; // @[TxBufferFifo.scala 158:34]
-        end else begin
-          info_buf_reg_0_chksum_offload <= _GEN_156;
-        end
-      end else begin
-        info_buf_reg_0_chksum_offload <= _GEN_156;
-      end
-    end else begin
-      info_buf_reg_0_chksum_offload <= _GEN_156;
-    end
-    if (reset) begin // @[TxBufferFifo.scala 42:29]
-      info_buf_reg_0_pkt_type <= 2'h0; // @[TxBufferFifo.scala 42:29]
-    end else if (out_shake_hand) begin // @[TxBufferFifo.scala 153:24]
-      if (_io_out_tlast_T_1) begin // @[TxBufferFifo.scala 157:53]
-        if (~rd_index_reg[0]) begin // @[TxBufferFifo.scala 158:34]
-          info_buf_reg_0_pkt_type <= 2'h0; // @[TxBufferFifo.scala 158:34]
-        end else begin
-          info_buf_reg_0_pkt_type <= _GEN_154;
-        end
-      end else begin
-        info_buf_reg_0_pkt_type <= _GEN_154;
-      end
-    end else begin
-      info_buf_reg_0_pkt_type <= _GEN_154;
-    end
-    if (reset) begin // @[TxBufferFifo.scala 42:29]
-      info_buf_reg_0_ip_chksum <= 16'h0; // @[TxBufferFifo.scala 42:29]
-    end else if (out_shake_hand) begin // @[TxBufferFifo.scala 153:24]
-      if (_io_out_tlast_T_1) begin // @[TxBufferFifo.scala 157:53]
-        if (~rd_index_reg[0]) begin // @[TxBufferFifo.scala 158:34]
-          info_buf_reg_0_ip_chksum <= 16'h0; // @[TxBufferFifo.scala 158:34]
-        end else begin
-          info_buf_reg_0_ip_chksum <= _GEN_152;
-        end
-      end else begin
-        info_buf_reg_0_ip_chksum <= _GEN_152;
-      end
-    end else begin
-      info_buf_reg_0_ip_chksum <= _GEN_152;
-    end
-    if (reset) begin // @[TxBufferFifo.scala 42:29]
-      info_buf_reg_0_tcp_chksum <= 16'h0; // @[TxBufferFifo.scala 42:29]
-    end else if (out_shake_hand) begin // @[TxBufferFifo.scala 153:24]
-      if (_io_out_tlast_T_1) begin // @[TxBufferFifo.scala 157:53]
-        if (~rd_index_reg[0]) begin // @[TxBufferFifo.scala 158:34]
-          info_buf_reg_0_tcp_chksum <= 16'h0; // @[TxBufferFifo.scala 158:34]
-        end else begin
-          info_buf_reg_0_tcp_chksum <= _GEN_150;
-        end
-      end else begin
-        info_buf_reg_0_tcp_chksum <= _GEN_150;
-      end
-    end else begin
-      info_buf_reg_0_tcp_chksum <= _GEN_150;
-    end
-    if (reset) begin // @[TxBufferFifo.scala 42:29]
-      info_buf_reg_0_burst <= 6'h0; // @[TxBufferFifo.scala 42:29]
-    end else if (out_shake_hand) begin // @[TxBufferFifo.scala 153:24]
-      if (_io_out_tlast_T_1) begin // @[TxBufferFifo.scala 157:53]
-        if (~rd_index_reg[0]) begin // @[TxBufferFifo.scala 158:34]
-          info_buf_reg_0_burst <= 6'h0; // @[TxBufferFifo.scala 158:34]
-        end else begin
-          info_buf_reg_0_burst <= _GEN_148;
-        end
-      end else if (~rd_index_reg[0]) begin // @[TxBufferFifo.scala 161:40]
-        info_buf_reg_0_burst <= _info_buf_reg_burst_T_5; // @[TxBufferFifo.scala 161:40]
-      end else begin
-        info_buf_reg_0_burst <= _GEN_148;
-      end
-    end else begin
-      info_buf_reg_0_burst <= _GEN_148;
-    end
-    if (reset) begin // @[TxBufferFifo.scala 42:29]
-      info_buf_reg_1_used <= 1'h0; // @[TxBufferFifo.scala 42:29]
-    end else if (out_shake_hand) begin // @[TxBufferFifo.scala 153:24]
-      if (_io_out_tlast_T_1) begin // @[TxBufferFifo.scala 157:53]
-        if (rd_index_reg[0]) begin // @[TxBufferFifo.scala 158:34]
-          info_buf_reg_1_used <= 1'h0; // @[TxBufferFifo.scala 158:34]
-        end else begin
-          info_buf_reg_1_used <= _GEN_161;
-        end
-      end else begin
-        info_buf_reg_1_used <= _GEN_161;
-      end
-    end else begin
-      info_buf_reg_1_used <= _GEN_161;
-    end
-    if (reset) begin // @[TxBufferFifo.scala 42:29]
-      info_buf_reg_1_valid <= 1'h0; // @[TxBufferFifo.scala 42:29]
-    end else if (out_shake_hand) begin // @[TxBufferFifo.scala 153:24]
-      if (_io_out_tlast_T_1) begin // @[TxBufferFifo.scala 157:53]
-        if (rd_index_reg[0]) begin // @[TxBufferFifo.scala 158:34]
-          info_buf_reg_1_valid <= 1'h0; // @[TxBufferFifo.scala 158:34]
-        end else begin
-          info_buf_reg_1_valid <= _GEN_159;
-        end
-      end else begin
-        info_buf_reg_1_valid <= _GEN_159;
-      end
-    end else begin
-      info_buf_reg_1_valid <= _GEN_159;
-    end
-    if (reset) begin // @[TxBufferFifo.scala 42:29]
-      info_buf_reg_1_chksum_offload <= 1'h0; // @[TxBufferFifo.scala 42:29]
-    end else if (out_shake_hand) begin // @[TxBufferFifo.scala 153:24]
-      if (_io_out_tlast_T_1) begin // @[TxBufferFifo.scala 157:53]
-        if (rd_index_reg[0]) begin // @[TxBufferFifo.scala 158:34]
-          info_buf_reg_1_chksum_offload <= 1'h0; // @[TxBufferFifo.scala 158:34]
-        end else begin
-          info_buf_reg_1_chksum_offload <= _GEN_157;
-        end
-      end else begin
-        info_buf_reg_1_chksum_offload <= _GEN_157;
-      end
-    end else begin
-      info_buf_reg_1_chksum_offload <= _GEN_157;
-    end
-    if (reset) begin // @[TxBufferFifo.scala 42:29]
-      info_buf_reg_1_pkt_type <= 2'h0; // @[TxBufferFifo.scala 42:29]
-    end else if (out_shake_hand) begin // @[TxBufferFifo.scala 153:24]
-      if (_io_out_tlast_T_1) begin // @[TxBufferFifo.scala 157:53]
-        if (rd_index_reg[0]) begin // @[TxBufferFifo.scala 158:34]
-          info_buf_reg_1_pkt_type <= 2'h0; // @[TxBufferFifo.scala 158:34]
-        end else begin
-          info_buf_reg_1_pkt_type <= _GEN_155;
-        end
-      end else begin
-        info_buf_reg_1_pkt_type <= _GEN_155;
-      end
-    end else begin
-      info_buf_reg_1_pkt_type <= _GEN_155;
-    end
-    if (reset) begin // @[TxBufferFifo.scala 42:29]
-      info_buf_reg_1_ip_chksum <= 16'h0; // @[TxBufferFifo.scala 42:29]
-    end else if (out_shake_hand) begin // @[TxBufferFifo.scala 153:24]
-      if (_io_out_tlast_T_1) begin // @[TxBufferFifo.scala 157:53]
-        if (rd_index_reg[0]) begin // @[TxBufferFifo.scala 158:34]
-          info_buf_reg_1_ip_chksum <= 16'h0; // @[TxBufferFifo.scala 158:34]
-        end else begin
-          info_buf_reg_1_ip_chksum <= _GEN_153;
-        end
-      end else begin
-        info_buf_reg_1_ip_chksum <= _GEN_153;
-      end
-    end else begin
-      info_buf_reg_1_ip_chksum <= _GEN_153;
-    end
-    if (reset) begin // @[TxBufferFifo.scala 42:29]
-      info_buf_reg_1_tcp_chksum <= 16'h0; // @[TxBufferFifo.scala 42:29]
-    end else if (out_shake_hand) begin // @[TxBufferFifo.scala 153:24]
-      if (_io_out_tlast_T_1) begin // @[TxBufferFifo.scala 157:53]
-        if (rd_index_reg[0]) begin // @[TxBufferFifo.scala 158:34]
-          info_buf_reg_1_tcp_chksum <= 16'h0; // @[TxBufferFifo.scala 158:34]
-        end else begin
-          info_buf_reg_1_tcp_chksum <= _GEN_151;
-        end
-      end else begin
-        info_buf_reg_1_tcp_chksum <= _GEN_151;
-      end
-    end else begin
-      info_buf_reg_1_tcp_chksum <= _GEN_151;
-    end
-    if (reset) begin // @[TxBufferFifo.scala 42:29]
-      info_buf_reg_1_burst <= 6'h0; // @[TxBufferFifo.scala 42:29]
-    end else if (out_shake_hand) begin // @[TxBufferFifo.scala 153:24]
-      if (_io_out_tlast_T_1) begin // @[TxBufferFifo.scala 157:53]
-        if (rd_index_reg[0]) begin // @[TxBufferFifo.scala 158:34]
-          info_buf_reg_1_burst <= 6'h0; // @[TxBufferFifo.scala 158:34]
-        end else begin
-          info_buf_reg_1_burst <= _GEN_149;
-        end
-      end else if (rd_index_reg[0]) begin // @[TxBufferFifo.scala 161:40]
-        info_buf_reg_1_burst <= _info_buf_reg_burst_T_5; // @[TxBufferFifo.scala 161:40]
-      end else begin
-        info_buf_reg_1_burst <= _GEN_149;
-      end
-    end else begin
-      info_buf_reg_1_burst <= _GEN_149;
-    end
-    if (reset) begin // @[TxBufferFifo.scala 43:29]
-      wr_index_reg <= 7'h0; // @[TxBufferFifo.scala 43:29]
-    end else if (!(io_reset_counter)) begin // @[TxBufferFifo.scala 76:26]
-      if (in_shake_hand) begin // @[TxBufferFifo.scala 80:31]
-        if (!(_GEN_2 == 6'h20)) begin // @[TxBufferFifo.scala 84:63]
-          wr_index_reg <= _GEN_94;
-        end
-      end
-    end
-    if (reset) begin // @[TxBufferFifo.scala 44:29]
-      rd_index_reg <= 7'h0; // @[TxBufferFifo.scala 44:29]
-    end else if (out_shake_hand) begin // @[TxBufferFifo.scala 153:24]
-      if (_io_out_tlast_T_1) begin // @[TxBufferFifo.scala 157:53]
-        rd_index_reg <= _rd_pos_next_T_2; // @[TxBufferFifo.scala 159:20]
-      end
-    end
-    wr_pos_reg <= _GEN_244[6:0]; // @[TxBufferFifo.scala 45:{29,29}]
-    if (reset) begin // @[TxBufferFifo.scala 46:29]
-      rd_pos_reg <= 7'h0; // @[TxBufferFifo.scala 46:29]
-    end else if (out_shake_hand) begin // @[TxBufferFifo.scala 138:33]
-      rd_pos_reg <= rd_pos_next;
-    end
-    if (reset) begin // @[TxBufferFifo.scala 54:29]
-      pack_counter <= 32'h0; // @[TxBufferFifo.scala 54:29]
-    end else if (io_reset_counter) begin // @[TxBufferFifo.scala 76:26]
-      pack_counter <= 32'h0; // @[TxBufferFifo.scala 77:18]
-    end else if (in_shake_hand) begin // @[TxBufferFifo.scala 80:31]
-      if (io_in_tlast) begin // @[TxBufferFifo.scala 81:26]
-        pack_counter <= _pack_counter_T_1; // @[TxBufferFifo.scala 82:22]
-      end
-    end
-    if (reset) begin // @[TxBufferFifo.scala 55:28]
-      err_counter <= 32'h0; // @[TxBufferFifo.scala 55:28]
-    end else if (io_reset_counter) begin // @[TxBufferFifo.scala 76:26]
-      err_counter <= 32'h0; // @[TxBufferFifo.scala 78:17]
-    end else if (in_shake_hand) begin // @[TxBufferFifo.scala 80:31]
-      if (_GEN_2 == 6'h20) begin // @[TxBufferFifo.scala 84:63]
-        err_counter <= _err_counter_T_1; // @[TxBufferFifo.scala 97:21]
-      end
-    end
-    if (reset) begin // @[TxBufferFifo.scala 62:30]
-      is_overflowed <= 1'h0; // @[TxBufferFifo.scala 62:30]
-    end else if (!(io_reset_counter)) begin // @[TxBufferFifo.scala 76:26]
-      if (in_shake_hand) begin // @[TxBufferFifo.scala 80:31]
-        if (_GEN_2 == 6'h20) begin // @[TxBufferFifo.scala 84:63]
-          is_overflowed <= _GEN_3;
-        end else begin
-          is_overflowed <= _GEN_96;
-        end
-      end
-    end
+    out_first_beat_reg <= reset | _GEN_3; // @[Reg.scala 28:{20,20}]
   end
 // Register and memory initialization
 `ifdef RANDOMIZE_GARBAGE_ASSIGN
@@ -1379,58 +952,11 @@ initial begin
         #0.002 begin end
       `endif
     `endif
-`ifdef RANDOMIZE_MEM_INIT
-  _RAND_0 = {16{`RANDOM}};
-  for (initvar = 0; initvar < 64; initvar = initvar+1)
-    data_buf_reg[initvar] = _RAND_0[511:0];
-`endif // RANDOMIZE_MEM_INIT
 `ifdef RANDOMIZE_REG_INIT
+  _RAND_0 = {1{`RANDOM}};
+  c2h_pack_counter_reg = _RAND_0[31:0];
   _RAND_1 = {1{`RANDOM}};
-  data_buf_reg_rd_data_en_pipe_0 = _RAND_1[0:0];
-  _RAND_2 = {1{`RANDOM}};
-  data_buf_reg_rd_data_addr_pipe_0 = _RAND_2[5:0];
-  _RAND_3 = {1{`RANDOM}};
-  info_buf_reg_0_used = _RAND_3[0:0];
-  _RAND_4 = {1{`RANDOM}};
-  info_buf_reg_0_valid = _RAND_4[0:0];
-  _RAND_5 = {1{`RANDOM}};
-  info_buf_reg_0_chksum_offload = _RAND_5[0:0];
-  _RAND_6 = {1{`RANDOM}};
-  info_buf_reg_0_pkt_type = _RAND_6[1:0];
-  _RAND_7 = {1{`RANDOM}};
-  info_buf_reg_0_ip_chksum = _RAND_7[15:0];
-  _RAND_8 = {1{`RANDOM}};
-  info_buf_reg_0_tcp_chksum = _RAND_8[15:0];
-  _RAND_9 = {1{`RANDOM}};
-  info_buf_reg_0_burst = _RAND_9[5:0];
-  _RAND_10 = {1{`RANDOM}};
-  info_buf_reg_1_used = _RAND_10[0:0];
-  _RAND_11 = {1{`RANDOM}};
-  info_buf_reg_1_valid = _RAND_11[0:0];
-  _RAND_12 = {1{`RANDOM}};
-  info_buf_reg_1_chksum_offload = _RAND_12[0:0];
-  _RAND_13 = {1{`RANDOM}};
-  info_buf_reg_1_pkt_type = _RAND_13[1:0];
-  _RAND_14 = {1{`RANDOM}};
-  info_buf_reg_1_ip_chksum = _RAND_14[15:0];
-  _RAND_15 = {1{`RANDOM}};
-  info_buf_reg_1_tcp_chksum = _RAND_15[15:0];
-  _RAND_16 = {1{`RANDOM}};
-  info_buf_reg_1_burst = _RAND_16[5:0];
-  _RAND_17 = {1{`RANDOM}};
-  wr_index_reg = _RAND_17[6:0];
-  _RAND_18 = {1{`RANDOM}};
-  rd_index_reg = _RAND_18[6:0];
-  _RAND_19 = {1{`RANDOM}};
-  wr_pos_reg = _RAND_19[6:0];
-  _RAND_20 = {1{`RANDOM}};
-  rd_pos_reg = _RAND_20[6:0];
-  _RAND_21 = {1{`RANDOM}};
-  pack_counter = _RAND_21[31:0];
-  _RAND_22 = {1{`RANDOM}};
-  err_counter = _RAND_22[31:0];
-  _RAND_23 = {1{`RANDOM}};
-  is_overflowed = _RAND_23[0:0];
+  out_first_beat_reg = _RAND_1[0:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
@@ -1453,7 +979,6 @@ module TxHandler(
   output         io_CMAC_in_tlast,
   input          io_reset_counter,
   output [31:0]  io_h2c_pack_counter,
-  output [31:0]  io_h2c_err_counter,
   input  [7:0]   io_extern_config_c2h_match_op,
   input  [31:0]  io_extern_config_c2h_match_arg_0,
   input  [31:0]  io_extern_config_c2h_match_arg_1,
@@ -1530,7 +1055,6 @@ module TxHandler(
   wire  tx_buffer_fifo_io_out_tlast; // @[TxHandler.scala 27:30]
   wire  tx_buffer_fifo_io_reset_counter; // @[TxHandler.scala 27:30]
   wire [31:0] tx_buffer_fifo_io_h2c_pack_counter; // @[TxHandler.scala 27:30]
-  wire [31:0] tx_buffer_fifo_io_h2c_err_counter; // @[TxHandler.scala 27:30]
   TxConverter tx_converter ( // @[TxHandler.scala 20:28]
     .clock(tx_converter_clock),
     .reset(tx_converter_reset),
@@ -1578,7 +1102,7 @@ module TxHandler(
     .io_out_tx_info_tcp_chksum(tx_pipeline_io_out_tx_info_tcp_chksum),
     .io_out_extern_config_c2h_match_op(tx_pipeline_io_out_extern_config_c2h_match_op)
   );
-  TxBufferFifo tx_buffer_fifo ( // @[TxHandler.scala 27:30]
+  TxBufferFifo2 tx_buffer_fifo ( // @[TxHandler.scala 27:30]
     .clock(tx_buffer_fifo_clock),
     .reset(tx_buffer_fifo_reset),
     .io_in_tdata(tx_buffer_fifo_io_in_tdata),
@@ -1593,15 +1117,13 @@ module TxHandler(
     .io_out_tready(tx_buffer_fifo_io_out_tready),
     .io_out_tlast(tx_buffer_fifo_io_out_tlast),
     .io_reset_counter(tx_buffer_fifo_io_reset_counter),
-    .io_h2c_pack_counter(tx_buffer_fifo_io_h2c_pack_counter),
-    .io_h2c_err_counter(tx_buffer_fifo_io_h2c_err_counter)
+    .io_h2c_pack_counter(tx_buffer_fifo_io_h2c_pack_counter)
   );
   assign io_QDMA_h2c_stub_out_tready = tx_converter_io_in_tready; // @[TxHandler.scala 21:32]
   assign io_CMAC_in_tdata = tx_buffer_fifo_io_out_tdata; // @[TxHandler.scala 29:35]
   assign io_CMAC_in_tvalid = tx_buffer_fifo_io_out_tvalid; // @[TxHandler.scala 29:35]
   assign io_CMAC_in_tlast = tx_buffer_fifo_io_out_tlast; // @[TxHandler.scala 29:35]
   assign io_h2c_pack_counter = tx_buffer_fifo_io_h2c_pack_counter; // @[TxHandler.scala 31:35]
-  assign io_h2c_err_counter = tx_buffer_fifo_io_h2c_err_counter; // @[TxHandler.scala 32:35]
   assign tx_converter_clock = clock;
   assign tx_converter_reset = reset;
   assign tx_converter_io_in_tdata = io_QDMA_h2c_stub_out_tdata; // @[TxHandler.scala 21:32]
@@ -5935,31 +5457,31 @@ module RxPipeline(
   assign io_out_extern_config_c2h_match_op = rx_re_searcher_io_out_extern_config_c2h_match_op; // @[RxPipeline.scala 48:25]
   assign rx_re_searcher_clock = clock;
   assign rx_re_searcher_reset = reset;
-  assign rx_re_searcher_io_in_tdata = rx_string_searcher_io_out_tdata; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_tvalid = rx_string_searcher_io_out_tvalid; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_tlast = rx_string_searcher_io_out_tlast; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_tuser = rx_string_searcher_io_out_tuser; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_rx_info_tlen = rx_string_searcher_io_out_rx_info_tlen; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_rx_info_qid = rx_string_searcher_io_out_rx_info_qid; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_rx_info_ip_chksum = rx_string_searcher_io_out_rx_info_ip_chksum; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_rx_info_tcp_chksum = rx_string_searcher_io_out_rx_info_tcp_chksum; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_extern_config_c2h_match_op = rx_string_searcher_io_out_extern_config_c2h_match_op; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_0 = rx_string_searcher_io_out_extern_config_c2h_match_arg_0; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_1 = rx_string_searcher_io_out_extern_config_c2h_match_arg_1; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_2 = rx_string_searcher_io_out_extern_config_c2h_match_arg_2; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_3 = rx_string_searcher_io_out_extern_config_c2h_match_arg_3; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_4 = rx_string_searcher_io_out_extern_config_c2h_match_arg_4; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_5 = rx_string_searcher_io_out_extern_config_c2h_match_arg_5; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_6 = rx_string_searcher_io_out_extern_config_c2h_match_arg_6; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_7 = rx_string_searcher_io_out_extern_config_c2h_match_arg_7; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_8 = rx_string_searcher_io_out_extern_config_c2h_match_arg_8; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_9 = rx_string_searcher_io_out_extern_config_c2h_match_arg_9; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_10 = rx_string_searcher_io_out_extern_config_c2h_match_arg_10; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_11 = rx_string_searcher_io_out_extern_config_c2h_match_arg_11; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_12 = rx_string_searcher_io_out_extern_config_c2h_match_arg_12; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_13 = rx_string_searcher_io_out_extern_config_c2h_match_arg_13; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_14 = rx_string_searcher_io_out_extern_config_c2h_match_arg_14; // @[RxPipeline.scala 47:34]
-  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_15 = rx_string_searcher_io_out_extern_config_c2h_match_arg_15; // @[RxPipeline.scala 47:34]
+  assign rx_re_searcher_io_in_tdata = rx_string_searcher_io_out_tdata; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_tvalid = rx_string_searcher_io_out_tvalid; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_tlast = rx_string_searcher_io_out_tlast; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_tuser = rx_string_searcher_io_out_tuser; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_rx_info_tlen = rx_string_searcher_io_out_rx_info_tlen; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_rx_info_qid = rx_string_searcher_io_out_rx_info_qid; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_rx_info_ip_chksum = rx_string_searcher_io_out_rx_info_ip_chksum; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_rx_info_tcp_chksum = rx_string_searcher_io_out_rx_info_tcp_chksum; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_extern_config_c2h_match_op = rx_string_searcher_io_out_extern_config_c2h_match_op; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_0 = rx_string_searcher_io_out_extern_config_c2h_match_arg_0; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_1 = rx_string_searcher_io_out_extern_config_c2h_match_arg_1; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_2 = rx_string_searcher_io_out_extern_config_c2h_match_arg_2; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_3 = rx_string_searcher_io_out_extern_config_c2h_match_arg_3; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_4 = rx_string_searcher_io_out_extern_config_c2h_match_arg_4; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_5 = rx_string_searcher_io_out_extern_config_c2h_match_arg_5; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_6 = rx_string_searcher_io_out_extern_config_c2h_match_arg_6; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_7 = rx_string_searcher_io_out_extern_config_c2h_match_arg_7; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_8 = rx_string_searcher_io_out_extern_config_c2h_match_arg_8; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_9 = rx_string_searcher_io_out_extern_config_c2h_match_arg_9; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_10 = rx_string_searcher_io_out_extern_config_c2h_match_arg_10; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_11 = rx_string_searcher_io_out_extern_config_c2h_match_arg_11; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_12 = rx_string_searcher_io_out_extern_config_c2h_match_arg_12; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_13 = rx_string_searcher_io_out_extern_config_c2h_match_arg_13; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_14 = rx_string_searcher_io_out_extern_config_c2h_match_arg_14; // @[RxPipeline.scala 47:29]
+  assign rx_re_searcher_io_in_extern_config_c2h_match_arg_15 = rx_string_searcher_io_out_extern_config_c2h_match_arg_15; // @[RxPipeline.scala 47:29]
   assign rx_re_searcher_io_out_tready = io_out_tready; // @[RxPipeline.scala 48:25]
   assign rx_chksum_verifier_clock = clock;
   assign rx_chksum_verifier_reset = reset;
@@ -6013,81 +5535,81 @@ module RxPipeline(
   assign rx_rss_hasher_io_in_extern_config_c2h_match_arg_13 = rx_chksum_verifier_io_out_extern_config_c2h_match_arg_13; // @[RxPipeline.scala 44:29]
   assign rx_rss_hasher_io_in_extern_config_c2h_match_arg_14 = rx_chksum_verifier_io_out_extern_config_c2h_match_arg_14; // @[RxPipeline.scala 44:29]
   assign rx_rss_hasher_io_in_extern_config_c2h_match_arg_15 = rx_chksum_verifier_io_out_extern_config_c2h_match_arg_15; // @[RxPipeline.scala 44:29]
-  assign rx_rss_hasher_io_out_tready = rx_string_matcher_io_in_tready; // @[RxPipeline.scala 45:24]
+  assign rx_rss_hasher_io_out_tready = rx_string_matcher_io_in_tready; // @[RxPipeline.scala 45:29]
   assign rx_string_matcher_clock = clock;
   assign rx_string_matcher_reset = reset;
-  assign rx_string_matcher_io_in_tdata = rx_rss_hasher_io_out_tdata; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_tvalid = rx_rss_hasher_io_out_tvalid; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_tlast = rx_rss_hasher_io_out_tlast; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_tuser = rx_rss_hasher_io_out_tuser; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_rx_info_tlen = rx_rss_hasher_io_out_rx_info_tlen; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_rx_info_qid = rx_rss_hasher_io_out_rx_info_qid; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_rx_info_ip_chksum = rx_rss_hasher_io_out_rx_info_ip_chksum; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_rx_info_tcp_chksum = rx_rss_hasher_io_out_rx_info_tcp_chksum; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_extern_config_c2h_match_op = rx_rss_hasher_io_out_extern_config_c2h_match_op; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_0 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_0; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_1 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_1; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_2 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_2; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_3 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_3; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_4 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_4; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_5 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_5; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_6 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_6; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_7 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_7; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_8 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_8; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_9 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_9; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_10 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_10; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_11 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_11; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_12 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_12; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_13 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_13; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_14 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_14; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_15 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_15; // @[RxPipeline.scala 45:24]
-  assign rx_string_matcher_io_out_tready = rx_string_searcher_io_in_tready; // @[RxPipeline.scala 46:31]
+  assign rx_string_matcher_io_in_tdata = rx_rss_hasher_io_out_tdata; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_tvalid = rx_rss_hasher_io_out_tvalid; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_tlast = rx_rss_hasher_io_out_tlast; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_tuser = rx_rss_hasher_io_out_tuser; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_rx_info_tlen = rx_rss_hasher_io_out_rx_info_tlen; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_rx_info_qid = rx_rss_hasher_io_out_rx_info_qid; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_rx_info_ip_chksum = rx_rss_hasher_io_out_rx_info_ip_chksum; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_rx_info_tcp_chksum = rx_rss_hasher_io_out_rx_info_tcp_chksum; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_extern_config_c2h_match_op = rx_rss_hasher_io_out_extern_config_c2h_match_op; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_0 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_0; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_1 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_1; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_2 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_2; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_3 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_3; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_4 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_4; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_5 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_5; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_6 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_6; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_7 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_7; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_8 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_8; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_9 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_9; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_10 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_10; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_11 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_11; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_12 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_12; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_13 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_13; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_14 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_14; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_in_extern_config_c2h_match_arg_15 = rx_rss_hasher_io_out_extern_config_c2h_match_arg_15; // @[RxPipeline.scala 45:29]
+  assign rx_string_matcher_io_out_tready = rx_string_searcher_io_in_tready; // @[RxPipeline.scala 46:29]
   assign rx_string_searcher_clock = clock;
   assign rx_string_searcher_reset = reset;
-  assign rx_string_searcher_io_in_tdata = rx_string_matcher_io_out_tdata; // @[RxPipeline.scala 46:31]
-  assign rx_string_searcher_io_in_tvalid = rx_string_matcher_io_out_tvalid; // @[RxPipeline.scala 46:31]
-  assign rx_string_searcher_io_in_tlast = rx_string_matcher_io_out_tlast; // @[RxPipeline.scala 46:31]
-  assign rx_string_searcher_io_in_tuser = rx_string_matcher_io_out_tuser; // @[RxPipeline.scala 46:31]
-  assign rx_string_searcher_io_in_rx_info_tlen = rx_string_matcher_io_out_rx_info_tlen; // @[RxPipeline.scala 46:31]
-  assign rx_string_searcher_io_in_rx_info_qid = rx_string_matcher_io_out_rx_info_qid; // @[RxPipeline.scala 46:31]
-  assign rx_string_searcher_io_in_rx_info_ip_chksum = rx_string_matcher_io_out_rx_info_ip_chksum; // @[RxPipeline.scala 46:31]
-  assign rx_string_searcher_io_in_rx_info_tcp_chksum = rx_string_matcher_io_out_rx_info_tcp_chksum; // @[RxPipeline.scala 46:31]
-  assign rx_string_searcher_io_in_extern_config_c2h_match_op = rx_string_matcher_io_out_extern_config_c2h_match_op; // @[RxPipeline.scala 46:31]
+  assign rx_string_searcher_io_in_tdata = rx_string_matcher_io_out_tdata; // @[RxPipeline.scala 46:29]
+  assign rx_string_searcher_io_in_tvalid = rx_string_matcher_io_out_tvalid; // @[RxPipeline.scala 46:29]
+  assign rx_string_searcher_io_in_tlast = rx_string_matcher_io_out_tlast; // @[RxPipeline.scala 46:29]
+  assign rx_string_searcher_io_in_tuser = rx_string_matcher_io_out_tuser; // @[RxPipeline.scala 46:29]
+  assign rx_string_searcher_io_in_rx_info_tlen = rx_string_matcher_io_out_rx_info_tlen; // @[RxPipeline.scala 46:29]
+  assign rx_string_searcher_io_in_rx_info_qid = rx_string_matcher_io_out_rx_info_qid; // @[RxPipeline.scala 46:29]
+  assign rx_string_searcher_io_in_rx_info_ip_chksum = rx_string_matcher_io_out_rx_info_ip_chksum; // @[RxPipeline.scala 46:29]
+  assign rx_string_searcher_io_in_rx_info_tcp_chksum = rx_string_matcher_io_out_rx_info_tcp_chksum; // @[RxPipeline.scala 46:29]
+  assign rx_string_searcher_io_in_extern_config_c2h_match_op = rx_string_matcher_io_out_extern_config_c2h_match_op; // @[RxPipeline.scala 46:29]
   assign rx_string_searcher_io_in_extern_config_c2h_match_arg_0 = rx_string_matcher_io_out_extern_config_c2h_match_arg_0
-    ; // @[RxPipeline.scala 46:31]
+    ; // @[RxPipeline.scala 46:29]
   assign rx_string_searcher_io_in_extern_config_c2h_match_arg_1 = rx_string_matcher_io_out_extern_config_c2h_match_arg_1
-    ; // @[RxPipeline.scala 46:31]
+    ; // @[RxPipeline.scala 46:29]
   assign rx_string_searcher_io_in_extern_config_c2h_match_arg_2 = rx_string_matcher_io_out_extern_config_c2h_match_arg_2
-    ; // @[RxPipeline.scala 46:31]
+    ; // @[RxPipeline.scala 46:29]
   assign rx_string_searcher_io_in_extern_config_c2h_match_arg_3 = rx_string_matcher_io_out_extern_config_c2h_match_arg_3
-    ; // @[RxPipeline.scala 46:31]
+    ; // @[RxPipeline.scala 46:29]
   assign rx_string_searcher_io_in_extern_config_c2h_match_arg_4 = rx_string_matcher_io_out_extern_config_c2h_match_arg_4
-    ; // @[RxPipeline.scala 46:31]
+    ; // @[RxPipeline.scala 46:29]
   assign rx_string_searcher_io_in_extern_config_c2h_match_arg_5 = rx_string_matcher_io_out_extern_config_c2h_match_arg_5
-    ; // @[RxPipeline.scala 46:31]
+    ; // @[RxPipeline.scala 46:29]
   assign rx_string_searcher_io_in_extern_config_c2h_match_arg_6 = rx_string_matcher_io_out_extern_config_c2h_match_arg_6
-    ; // @[RxPipeline.scala 46:31]
+    ; // @[RxPipeline.scala 46:29]
   assign rx_string_searcher_io_in_extern_config_c2h_match_arg_7 = rx_string_matcher_io_out_extern_config_c2h_match_arg_7
-    ; // @[RxPipeline.scala 46:31]
+    ; // @[RxPipeline.scala 46:29]
   assign rx_string_searcher_io_in_extern_config_c2h_match_arg_8 = rx_string_matcher_io_out_extern_config_c2h_match_arg_8
-    ; // @[RxPipeline.scala 46:31]
+    ; // @[RxPipeline.scala 46:29]
   assign rx_string_searcher_io_in_extern_config_c2h_match_arg_9 = rx_string_matcher_io_out_extern_config_c2h_match_arg_9
-    ; // @[RxPipeline.scala 46:31]
+    ; // @[RxPipeline.scala 46:29]
   assign rx_string_searcher_io_in_extern_config_c2h_match_arg_10 =
-    rx_string_matcher_io_out_extern_config_c2h_match_arg_10; // @[RxPipeline.scala 46:31]
+    rx_string_matcher_io_out_extern_config_c2h_match_arg_10; // @[RxPipeline.scala 46:29]
   assign rx_string_searcher_io_in_extern_config_c2h_match_arg_11 =
-    rx_string_matcher_io_out_extern_config_c2h_match_arg_11; // @[RxPipeline.scala 46:31]
+    rx_string_matcher_io_out_extern_config_c2h_match_arg_11; // @[RxPipeline.scala 46:29]
   assign rx_string_searcher_io_in_extern_config_c2h_match_arg_12 =
-    rx_string_matcher_io_out_extern_config_c2h_match_arg_12; // @[RxPipeline.scala 46:31]
+    rx_string_matcher_io_out_extern_config_c2h_match_arg_12; // @[RxPipeline.scala 46:29]
   assign rx_string_searcher_io_in_extern_config_c2h_match_arg_13 =
-    rx_string_matcher_io_out_extern_config_c2h_match_arg_13; // @[RxPipeline.scala 46:31]
+    rx_string_matcher_io_out_extern_config_c2h_match_arg_13; // @[RxPipeline.scala 46:29]
   assign rx_string_searcher_io_in_extern_config_c2h_match_arg_14 =
-    rx_string_matcher_io_out_extern_config_c2h_match_arg_14; // @[RxPipeline.scala 46:31]
+    rx_string_matcher_io_out_extern_config_c2h_match_arg_14; // @[RxPipeline.scala 46:29]
   assign rx_string_searcher_io_in_extern_config_c2h_match_arg_15 =
-    rx_string_matcher_io_out_extern_config_c2h_match_arg_15; // @[RxPipeline.scala 46:31]
-  assign rx_string_searcher_io_out_tready = rx_re_searcher_io_in_tready; // @[RxPipeline.scala 47:34]
+    rx_string_matcher_io_out_extern_config_c2h_match_arg_15; // @[RxPipeline.scala 46:29]
+  assign rx_string_searcher_io_out_tready = rx_re_searcher_io_in_tready; // @[RxPipeline.scala 47:29]
 endmodule
-module RxBufferFifo(
+module RxBufferFifo2(
   input          clock,
   input          reset,
   input  [511:0] io_in_tdata,
@@ -6110,663 +5632,123 @@ module RxBufferFifo(
   output [31:0]  io_c2h_pack_counter,
   output [31:0]  io_c2h_err_counter
 );
-`ifdef RANDOMIZE_MEM_INIT
-  reg [511:0] _RAND_0;
-`endif // RANDOMIZE_MEM_INIT
 `ifdef RANDOMIZE_REG_INIT
+  reg [31:0] _RAND_0;
   reg [31:0] _RAND_1;
   reg [31:0] _RAND_2;
-  reg [31:0] _RAND_3;
-  reg [31:0] _RAND_4;
-  reg [31:0] _RAND_5;
-  reg [31:0] _RAND_6;
-  reg [31:0] _RAND_7;
-  reg [31:0] _RAND_8;
-  reg [31:0] _RAND_9;
-  reg [31:0] _RAND_10;
-  reg [31:0] _RAND_11;
-  reg [31:0] _RAND_12;
-  reg [31:0] _RAND_13;
-  reg [31:0] _RAND_14;
-  reg [31:0] _RAND_15;
-  reg [31:0] _RAND_16;
-  reg [31:0] _RAND_17;
-  reg [31:0] _RAND_18;
-  reg [31:0] _RAND_19;
-  reg [31:0] _RAND_20;
-  reg [31:0] _RAND_21;
-  reg [31:0] _RAND_22;
-  reg [31:0] _RAND_23;
-  reg [31:0] _RAND_24;
-  reg [31:0] _RAND_25;
-  reg [31:0] _RAND_26;
-  reg [31:0] _RAND_27;
-  reg [31:0] _RAND_28;
 `endif // RANDOMIZE_REG_INIT
-  reg [511:0] data_buf_reg [0:63]; // @[RxBufferFifo.scala 44:33]
-  wire  data_buf_reg_io_out_tdata_MPORT_en; // @[RxBufferFifo.scala 44:33]
-  wire [5:0] data_buf_reg_io_out_tdata_MPORT_addr; // @[RxBufferFifo.scala 44:33]
-  wire [511:0] data_buf_reg_io_out_tdata_MPORT_data; // @[RxBufferFifo.scala 44:33]
-  wire [511:0] data_buf_reg_MPORT_data; // @[RxBufferFifo.scala 44:33]
-  wire [5:0] data_buf_reg_MPORT_addr; // @[RxBufferFifo.scala 44:33]
-  wire  data_buf_reg_MPORT_mask; // @[RxBufferFifo.scala 44:33]
-  wire  data_buf_reg_MPORT_en; // @[RxBufferFifo.scala 44:33]
-  reg  data_buf_reg_io_out_tdata_MPORT_en_pipe_0;
-  reg [5:0] data_buf_reg_io_out_tdata_MPORT_addr_pipe_0;
-  wire  in_shake_hand = io_in_tvalid & io_in_tready; // @[RxBufferFifo.scala 43:36]
-  reg  info_buf_reg_0_used; // @[RxBufferFifo.scala 47:29]
-  reg  info_buf_reg_0_valid; // @[RxBufferFifo.scala 47:29]
-  reg  info_buf_reg_0_chksum_offload; // @[RxBufferFifo.scala 47:29]
-  reg [1:0] info_buf_reg_0_pkt_type; // @[RxBufferFifo.scala 47:29]
-  reg [5:0] info_buf_reg_0_qid; // @[RxBufferFifo.scala 47:29]
-  reg [15:0] info_buf_reg_0_len; // @[RxBufferFifo.scala 47:29]
-  reg [15:0] info_buf_reg_0_ip_chksum; // @[RxBufferFifo.scala 47:29]
-  reg [15:0] info_buf_reg_0_tcp_chksum; // @[RxBufferFifo.scala 47:29]
-  reg [5:0] info_buf_reg_0_burst; // @[RxBufferFifo.scala 47:29]
-  reg  info_buf_reg_1_used; // @[RxBufferFifo.scala 47:29]
-  reg  info_buf_reg_1_valid; // @[RxBufferFifo.scala 47:29]
-  reg  info_buf_reg_1_chksum_offload; // @[RxBufferFifo.scala 47:29]
-  reg [1:0] info_buf_reg_1_pkt_type; // @[RxBufferFifo.scala 47:29]
-  reg [5:0] info_buf_reg_1_qid; // @[RxBufferFifo.scala 47:29]
-  reg [15:0] info_buf_reg_1_len; // @[RxBufferFifo.scala 47:29]
-  reg [15:0] info_buf_reg_1_ip_chksum; // @[RxBufferFifo.scala 47:29]
-  reg [15:0] info_buf_reg_1_tcp_chksum; // @[RxBufferFifo.scala 47:29]
-  reg [5:0] info_buf_reg_1_burst; // @[RxBufferFifo.scala 47:29]
-  reg [6:0] wr_index_reg; // @[RxBufferFifo.scala 48:29]
-  reg [6:0] rd_index_reg; // @[RxBufferFifo.scala 49:29]
-  reg [6:0] wr_pos_reg; // @[RxBufferFifo.scala 50:29]
-  reg [6:0] rd_pos_reg; // @[RxBufferFifo.scala 51:29]
-  wire  buf_full = info_buf_reg_0_valid & info_buf_reg_1_valid; // @[RxBufferFifo.scala 56:40]
-  reg [31:0] pack_counter; // @[RxBufferFifo.scala 59:29]
-  reg [31:0] err_counter; // @[RxBufferFifo.scala 60:28]
-  reg [31:0] wrong_chksum_counter; // @[RxBufferFifo.scala 61:37]
-  reg  is_overflowed; // @[RxBufferFifo.scala 66:30]
-  wire [15:0] _mid_ip_chksum_T_3 = io_in_rx_info_ip_chksum[31:16] + io_in_rx_info_ip_chksum[15:0]; // @[Misc.scala 14:14]
-  wire [15:0] _mid_tcp_chksum_T_3 = io_in_rx_info_tcp_chksum[31:16] + io_in_rx_info_tcp_chksum[15:0]; // @[Misc.scala 14:14]
-  wire [31:0] mid_ip_chksum = {{16'd0}, _mid_ip_chksum_T_3}; // @[RxBufferFifo.scala 71:27 72:17]
+  wire  rx_info_fifo_s_axis_aclk; // @[RxBufferFifo2.scala 23:28]
+  wire  rx_info_fifo_s_axis_aresetn; // @[RxBufferFifo2.scala 23:28]
+  wire [127:0] rx_info_fifo_s_axis_tdata; // @[RxBufferFifo2.scala 23:28]
+  wire  rx_info_fifo_s_axis_tlast; // @[RxBufferFifo2.scala 23:28]
+  wire  rx_info_fifo_s_axis_tready; // @[RxBufferFifo2.scala 23:28]
+  wire  rx_info_fifo_s_axis_tvalid; // @[RxBufferFifo2.scala 23:28]
+  wire [127:0] rx_info_fifo_m_axis_tdata; // @[RxBufferFifo2.scala 23:28]
+  wire  rx_info_fifo_m_axis_tlast; // @[RxBufferFifo2.scala 23:28]
+  wire  rx_info_fifo_m_axis_tready; // @[RxBufferFifo2.scala 23:28]
+  wire  rx_info_fifo_m_axis_tvalid; // @[RxBufferFifo2.scala 23:28]
+  wire  rx_data_fifo_s_axis_aclk; // @[RxBufferFifo2.scala 24:28]
+  wire  rx_data_fifo_s_axis_aresetn; // @[RxBufferFifo2.scala 24:28]
+  wire [511:0] rx_data_fifo_s_axis_tdata; // @[RxBufferFifo2.scala 24:28]
+  wire  rx_data_fifo_s_axis_tlast; // @[RxBufferFifo2.scala 24:28]
+  wire  rx_data_fifo_s_axis_tready; // @[RxBufferFifo2.scala 24:28]
+  wire  rx_data_fifo_s_axis_tvalid; // @[RxBufferFifo2.scala 24:28]
+  wire [511:0] rx_data_fifo_m_axis_tdata; // @[RxBufferFifo2.scala 24:28]
+  wire  rx_data_fifo_m_axis_tlast; // @[RxBufferFifo2.scala 24:28]
+  wire  rx_data_fifo_m_axis_tready; // @[RxBufferFifo2.scala 24:28]
+  wire  rx_data_fifo_m_axis_tvalid; // @[RxBufferFifo2.scala 24:28]
+  reg [31:0] c2h_pack_counter_reg; // @[RxBufferFifo2.scala 31:37]
+  reg [31:0] c2h_err_counter_reg; // @[RxBufferFifo2.scala 32:37]
+  reg [31:0] wrong_chksum_counter; // @[RxBufferFifo2.scala 33:37]
+  wire  in_shake_hand = io_in_tvalid & io_in_tready; // @[RxBufferFifo2.scala 35:36]
+  wire  out_shake_hand = io_out_tvalid & io_out_tready; // @[RxBufferFifo2.scala 36:38]
+  wire [31:0] pkt_info_tcp_chksum = rx_info_fifo_m_axis_tdata[31:0]; // @[RxBufferFifo2.scala 38:55]
+  wire [31:0] pkt_info_ip_chksum = rx_info_fifo_m_axis_tdata[63:32]; // @[RxBufferFifo2.scala 38:55]
+  wire [15:0] _mid_ip_chksum_T_3 = pkt_info_ip_chksum[31:16] + pkt_info_ip_chksum[15:0]; // @[Misc.scala 14:14]
+  wire [15:0] _mid_tcp_chksum_T_3 = pkt_info_tcp_chksum[31:16] + pkt_info_tcp_chksum[15:0]; // @[Misc.scala 14:14]
+  wire [31:0] mid_ip_chksum = {{16'd0}, _mid_ip_chksum_T_3}; // @[RxBufferFifo2.scala 40:27 41:17]
   wire [15:0] _end_ip_chksum_T_3 = mid_ip_chksum[31:16] + mid_ip_chksum[15:0]; // @[Misc.scala 14:14]
-  wire [15:0] end_ip_chksum = ~_end_ip_chksum_T_3; // @[RxBufferFifo.scala 77:20]
-  wire [31:0] mid_tcp_chksum = {{16'd0}, _mid_tcp_chksum_T_3}; // @[RxBufferFifo.scala 73:28 74:18]
+  wire [15:0] end_ip_chksum = ~_end_ip_chksum_T_3; // @[RxBufferFifo2.scala 46:20]
+  wire [31:0] mid_tcp_chksum = {{16'd0}, _mid_tcp_chksum_T_3}; // @[RxBufferFifo2.scala 42:28 43:18]
   wire [15:0] _end_tcp_chksum_T_3 = mid_tcp_chksum[31:16] + mid_tcp_chksum[15:0]; // @[Misc.scala 14:14]
-  wire [15:0] end_tcp_chksum = ~_end_tcp_chksum_T_3; // @[RxBufferFifo.scala 79:21]
-  wire [31:0] _pack_counter_T_1 = pack_counter + 32'h1; // @[RxBufferFifo.scala 87:36]
-  wire [5:0] _GEN_2 = wr_index_reg[0] ? info_buf_reg_1_burst : info_buf_reg_0_burst; // @[RxBufferFifo.scala 89:{44,44}]
-  wire [11:0] _GEN_343 = {wr_index_reg, 5'h0}; // @[RxBufferFifo.scala 98:38]
-  wire [13:0] _wr_pos_reg_T = {{2'd0}, _GEN_343}; // @[RxBufferFifo.scala 98:38]
-  wire  _GEN_3 = ~io_in_tlast | is_overflowed; // @[RxBufferFifo.scala 91:27 92:23 66:30]
-  wire [13:0] _GEN_4 = ~io_in_tlast ? {{7'd0}, wr_pos_reg} : _wr_pos_reg_T; // @[RxBufferFifo.scala 91:27 50:29 98:22]
-  wire [31:0] _err_counter_T_1 = err_counter + 32'h1; // @[RxBufferFifo.scala 101:34]
-  wire [5:0] _GEN_5 = ~wr_index_reg[0] ? 6'h0 : info_buf_reg_0_burst; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire [5:0] _GEN_6 = wr_index_reg[0] ? 6'h0 : info_buf_reg_1_burst; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire [15:0] _GEN_7 = ~wr_index_reg[0] ? 16'h0 : info_buf_reg_0_tcp_chksum; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire [15:0] _GEN_8 = wr_index_reg[0] ? 16'h0 : info_buf_reg_1_tcp_chksum; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire [15:0] _GEN_9 = ~wr_index_reg[0] ? 16'h0 : info_buf_reg_0_ip_chksum; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire [15:0] _GEN_10 = wr_index_reg[0] ? 16'h0 : info_buf_reg_1_ip_chksum; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire [15:0] _GEN_11 = ~wr_index_reg[0] ? 16'h0 : info_buf_reg_0_len; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire [15:0] _GEN_12 = wr_index_reg[0] ? 16'h0 : info_buf_reg_1_len; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire [5:0] _GEN_13 = ~wr_index_reg[0] ? 6'h0 : info_buf_reg_0_qid; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire [5:0] _GEN_14 = wr_index_reg[0] ? 6'h0 : info_buf_reg_1_qid; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire [1:0] _GEN_15 = ~wr_index_reg[0] ? 2'h0 : info_buf_reg_0_pkt_type; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire [1:0] _GEN_16 = wr_index_reg[0] ? 2'h0 : info_buf_reg_1_pkt_type; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire  _GEN_17 = ~wr_index_reg[0] ? 1'h0 : info_buf_reg_0_chksum_offload; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire  _GEN_18 = wr_index_reg[0] ? 1'h0 : info_buf_reg_1_chksum_offload; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire  _GEN_19 = ~wr_index_reg[0] ? 1'h0 : info_buf_reg_0_valid; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire  _GEN_20 = wr_index_reg[0] ? 1'h0 : info_buf_reg_1_valid; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire  _GEN_21 = ~wr_index_reg[0] ? 1'h0 : info_buf_reg_0_used; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire  _GEN_22 = wr_index_reg[0] ? 1'h0 : info_buf_reg_1_used; // @[RxBufferFifo.scala 102:{34,34} 47:29]
-  wire  _T_6 = ~is_overflowed; // @[RxBufferFifo.scala 110:13]
-  wire  _GEN_42 = wr_index_reg[0] ? info_buf_reg_1_used : info_buf_reg_0_used; // @[RxBufferFifo.scala 112:{15,15}]
-  wire  _GEN_345 = ~wr_index_reg[0]; // @[RxBufferFifo.scala 113:{43,43} 47:29]
-  wire  _GEN_43 = ~wr_index_reg[0] | info_buf_reg_0_used; // @[RxBufferFifo.scala 113:{43,43} 47:29]
-  wire  _GEN_44 = wr_index_reg[0] | info_buf_reg_1_used; // @[RxBufferFifo.scala 113:{43,43} 47:29]
-  wire [15:0] _info_buf_reg_pkt_type_T_3 = {io_in_tdata[103:96],io_in_tdata[111:104]}; // @[Cat.scala 31:58]
-  wire  _info_buf_reg_pkt_type_T_4 = _info_buf_reg_pkt_type_T_3 == 16'h800; // @[RxBufferFifo.scala 114:92]
-  wire  _info_buf_reg_pkt_type_T_7 = _info_buf_reg_pkt_type_T_3 == 16'h800 & io_in_tdata[191:184] == 8'h6; // @[RxBufferFifo.scala 114:108]
-  wire [1:0] _info_buf_reg_pkt_type_T_13 = {_info_buf_reg_pkt_type_T_7,_info_buf_reg_pkt_type_T_4}; // @[Cat.scala 31:58]
-  wire [1:0] _GEN_45 = ~wr_index_reg[0] ? _info_buf_reg_pkt_type_T_13 : info_buf_reg_0_pkt_type; // @[RxBufferFifo.scala 114:{47,47} 47:29]
-  wire [1:0] _GEN_46 = wr_index_reg[0] ? _info_buf_reg_pkt_type_T_13 : info_buf_reg_1_pkt_type; // @[RxBufferFifo.scala 114:{47,47} 47:29]
-  wire  _GEN_47 = ~wr_index_reg[0] ? io_in_extern_config_c2h_match_op[6] : info_buf_reg_0_chksum_offload; // @[RxBufferFifo.scala 116:{53,53} 47:29]
-  wire  _GEN_48 = wr_index_reg[0] ? io_in_extern_config_c2h_match_op[6] : info_buf_reg_1_chksum_offload; // @[RxBufferFifo.scala 116:{53,53} 47:29]
-  wire  _GEN_49 = ~_GEN_42 ? _GEN_43 : info_buf_reg_0_used; // @[RxBufferFifo.scala 112:49 47:29]
-  wire  _GEN_50 = ~_GEN_42 ? _GEN_44 : info_buf_reg_1_used; // @[RxBufferFifo.scala 112:49 47:29]
-  wire [1:0] _GEN_51 = ~_GEN_42 ? _GEN_45 : info_buf_reg_0_pkt_type; // @[RxBufferFifo.scala 112:49 47:29]
-  wire [1:0] _GEN_52 = ~_GEN_42 ? _GEN_46 : info_buf_reg_1_pkt_type; // @[RxBufferFifo.scala 112:49 47:29]
-  wire  _GEN_53 = ~_GEN_42 ? _GEN_47 : info_buf_reg_0_chksum_offload; // @[RxBufferFifo.scala 112:49 47:29]
-  wire  _GEN_54 = ~_GEN_42 ? _GEN_48 : info_buf_reg_1_chksum_offload; // @[RxBufferFifo.scala 112:49 47:29]
-  wire [5:0] _info_buf_reg_burst_T_2 = _GEN_2 + 6'h1; // @[RxBufferFifo.scala 119:78]
-  wire [5:0] _GEN_57 = ~wr_index_reg[0] ? _info_buf_reg_burst_T_2 : info_buf_reg_0_burst; // @[RxBufferFifo.scala 119:{42,42} 47:29]
-  wire [5:0] _GEN_58 = wr_index_reg[0] ? _info_buf_reg_burst_T_2 : info_buf_reg_1_burst; // @[RxBufferFifo.scala 119:{42,42} 47:29]
-  wire  _GEN_59 = _GEN_345 | info_buf_reg_0_valid; // @[RxBufferFifo.scala 121:{44,44} 47:29]
-  wire  _GEN_60 = wr_index_reg[0] | info_buf_reg_1_valid; // @[RxBufferFifo.scala 121:{44,44} 47:29]
-  wire [15:0] _GEN_61 = ~wr_index_reg[0] ? end_ip_chksum : info_buf_reg_0_ip_chksum; // @[RxBufferFifo.scala 123:{48,48} 47:29]
-  wire [15:0] _GEN_62 = wr_index_reg[0] ? end_ip_chksum : info_buf_reg_1_ip_chksum; // @[RxBufferFifo.scala 123:{48,48} 47:29]
-  wire [15:0] _GEN_63 = ~wr_index_reg[0] ? end_tcp_chksum : info_buf_reg_0_tcp_chksum; // @[RxBufferFifo.scala 124:{49,49} 47:29]
-  wire [15:0] _GEN_64 = wr_index_reg[0] ? end_tcp_chksum : info_buf_reg_1_tcp_chksum; // @[RxBufferFifo.scala 124:{49,49} 47:29]
-  wire [15:0] _GEN_65 = ~wr_index_reg[0] ? io_in_rx_info_tlen : info_buf_reg_0_len; // @[RxBufferFifo.scala 125:{42,42} 47:29]
-  wire [15:0] _GEN_66 = wr_index_reg[0] ? io_in_rx_info_tlen : info_buf_reg_1_len; // @[RxBufferFifo.scala 125:{42,42} 47:29]
-  wire [5:0] _GEN_67 = ~wr_index_reg[0] ? io_in_rx_info_qid : info_buf_reg_0_qid; // @[RxBufferFifo.scala 126:{42,42} 47:29]
-  wire [5:0] _GEN_68 = wr_index_reg[0] ? io_in_rx_info_qid : info_buf_reg_1_qid; // @[RxBufferFifo.scala 126:{42,42} 47:29]
-  wire [6:0] _wr_index_reg_T_1 = wr_index_reg + 7'h1; // @[RxBufferFifo.scala 38:12]
-  wire [6:0] _wr_index_reg_T_2 = _wr_index_reg_T_1 & 7'h1; // @[RxBufferFifo.scala 38:19]
-  wire [11:0] _GEN_347 = {_wr_index_reg_T_2, 5'h0}; // @[RxBufferFifo.scala 128:49]
-  wire [13:0] _wr_pos_reg_T_5 = {{2'd0}, _GEN_347}; // @[RxBufferFifo.scala 128:49]
-  wire [6:0] _wr_pos_reg_T_7 = wr_pos_reg + 7'h1; // @[RxBufferFifo.scala 130:36]
-  wire  _GEN_69 = io_in_tlast ? _GEN_59 : info_buf_reg_0_valid; // @[RxBufferFifo.scala 120:28 47:29]
-  wire  _GEN_70 = io_in_tlast ? _GEN_60 : info_buf_reg_1_valid; // @[RxBufferFifo.scala 120:28 47:29]
-  wire [15:0] _GEN_71 = io_in_tlast ? _GEN_61 : info_buf_reg_0_ip_chksum; // @[RxBufferFifo.scala 120:28 47:29]
-  wire [15:0] _GEN_72 = io_in_tlast ? _GEN_62 : info_buf_reg_1_ip_chksum; // @[RxBufferFifo.scala 120:28 47:29]
-  wire [15:0] _GEN_73 = io_in_tlast ? _GEN_63 : info_buf_reg_0_tcp_chksum; // @[RxBufferFifo.scala 120:28 47:29]
-  wire [15:0] _GEN_74 = io_in_tlast ? _GEN_64 : info_buf_reg_1_tcp_chksum; // @[RxBufferFifo.scala 120:28 47:29]
-  wire [15:0] _GEN_75 = io_in_tlast ? _GEN_65 : info_buf_reg_0_len; // @[RxBufferFifo.scala 120:28 47:29]
-  wire [15:0] _GEN_76 = io_in_tlast ? _GEN_66 : info_buf_reg_1_len; // @[RxBufferFifo.scala 120:28 47:29]
-  wire [5:0] _GEN_77 = io_in_tlast ? _GEN_67 : info_buf_reg_0_qid; // @[RxBufferFifo.scala 120:28 47:29]
-  wire [5:0] _GEN_78 = io_in_tlast ? _GEN_68 : info_buf_reg_1_qid; // @[RxBufferFifo.scala 120:28 47:29]
-  wire [6:0] _GEN_79 = io_in_tlast ? _wr_index_reg_T_2 : wr_index_reg; // @[RxBufferFifo.scala 120:28 127:24 48:29]
-  wire [13:0] _GEN_80 = io_in_tlast ? _wr_pos_reg_T_5 : {{7'd0}, _wr_pos_reg_T_7}; // @[RxBufferFifo.scala 120:28 128:22 130:22]
-  wire  _GEN_81 = io_in_tlast ? 1'h0 : is_overflowed; // @[RxBufferFifo.scala 132:32 134:25 66:30]
-  wire [13:0] _GEN_82 = io_in_tlast ? _wr_pos_reg_T : {{7'd0}, wr_pos_reg}; // @[RxBufferFifo.scala 132:32 135:22 50:29]
-  wire  _GEN_83 = ~is_overflowed ? _GEN_49 : info_buf_reg_0_used; // @[RxBufferFifo.scala 110:28 47:29]
-  wire  _GEN_84 = ~is_overflowed ? _GEN_50 : info_buf_reg_1_used; // @[RxBufferFifo.scala 110:28 47:29]
-  wire [1:0] _GEN_85 = ~is_overflowed ? _GEN_51 : info_buf_reg_0_pkt_type; // @[RxBufferFifo.scala 110:28 47:29]
-  wire [1:0] _GEN_86 = ~is_overflowed ? _GEN_52 : info_buf_reg_1_pkt_type; // @[RxBufferFifo.scala 110:28 47:29]
-  wire  _GEN_87 = ~is_overflowed ? _GEN_53 : info_buf_reg_0_chksum_offload; // @[RxBufferFifo.scala 110:28 47:29]
-  wire  _GEN_88 = ~is_overflowed ? _GEN_54 : info_buf_reg_1_chksum_offload; // @[RxBufferFifo.scala 110:28 47:29]
-  wire [5:0] _GEN_94 = ~is_overflowed ? _GEN_57 : info_buf_reg_0_burst; // @[RxBufferFifo.scala 110:28 47:29]
-  wire [5:0] _GEN_95 = ~is_overflowed ? _GEN_58 : info_buf_reg_1_burst; // @[RxBufferFifo.scala 110:28 47:29]
-  wire  _GEN_96 = ~is_overflowed ? _GEN_69 : info_buf_reg_0_valid; // @[RxBufferFifo.scala 110:28 47:29]
-  wire  _GEN_97 = ~is_overflowed ? _GEN_70 : info_buf_reg_1_valid; // @[RxBufferFifo.scala 110:28 47:29]
-  wire [15:0] _GEN_98 = ~is_overflowed ? _GEN_71 : info_buf_reg_0_ip_chksum; // @[RxBufferFifo.scala 110:28 47:29]
-  wire [15:0] _GEN_99 = ~is_overflowed ? _GEN_72 : info_buf_reg_1_ip_chksum; // @[RxBufferFifo.scala 110:28 47:29]
-  wire [15:0] _GEN_100 = ~is_overflowed ? _GEN_73 : info_buf_reg_0_tcp_chksum; // @[RxBufferFifo.scala 110:28 47:29]
-  wire [15:0] _GEN_101 = ~is_overflowed ? _GEN_74 : info_buf_reg_1_tcp_chksum; // @[RxBufferFifo.scala 110:28 47:29]
-  wire [15:0] _GEN_102 = ~is_overflowed ? _GEN_75 : info_buf_reg_0_len; // @[RxBufferFifo.scala 110:28 47:29]
-  wire [15:0] _GEN_103 = ~is_overflowed ? _GEN_76 : info_buf_reg_1_len; // @[RxBufferFifo.scala 110:28 47:29]
-  wire [5:0] _GEN_104 = ~is_overflowed ? _GEN_77 : info_buf_reg_0_qid; // @[RxBufferFifo.scala 110:28 47:29]
-  wire [5:0] _GEN_105 = ~is_overflowed ? _GEN_78 : info_buf_reg_1_qid; // @[RxBufferFifo.scala 110:28 47:29]
-  wire [6:0] _GEN_106 = ~is_overflowed ? _GEN_79 : wr_index_reg; // @[RxBufferFifo.scala 110:28 48:29]
-  wire [13:0] _GEN_107 = ~is_overflowed ? _GEN_80 : _GEN_82; // @[RxBufferFifo.scala 110:28]
-  wire  _GEN_108 = ~is_overflowed ? is_overflowed : _GEN_81; // @[RxBufferFifo.scala 110:28 66:30]
-  wire  _GEN_109 = io_in_tvalid ? _GEN_83 : info_buf_reg_0_used; // @[RxBufferFifo.scala 108:29 47:29]
-  wire  _GEN_110 = io_in_tvalid ? _GEN_84 : info_buf_reg_1_used; // @[RxBufferFifo.scala 108:29 47:29]
-  wire [1:0] _GEN_111 = io_in_tvalid ? _GEN_85 : info_buf_reg_0_pkt_type; // @[RxBufferFifo.scala 108:29 47:29]
-  wire [1:0] _GEN_112 = io_in_tvalid ? _GEN_86 : info_buf_reg_1_pkt_type; // @[RxBufferFifo.scala 108:29 47:29]
-  wire  _GEN_113 = io_in_tvalid ? _GEN_87 : info_buf_reg_0_chksum_offload; // @[RxBufferFifo.scala 108:29 47:29]
-  wire  _GEN_114 = io_in_tvalid ? _GEN_88 : info_buf_reg_1_chksum_offload; // @[RxBufferFifo.scala 108:29 47:29]
-  wire  _GEN_117 = io_in_tvalid & _T_6; // @[RxBufferFifo.scala 108:29 44:33]
-  wire [5:0] _GEN_120 = io_in_tvalid ? _GEN_94 : info_buf_reg_0_burst; // @[RxBufferFifo.scala 108:29 47:29]
-  wire [5:0] _GEN_121 = io_in_tvalid ? _GEN_95 : info_buf_reg_1_burst; // @[RxBufferFifo.scala 108:29 47:29]
-  wire  _GEN_122 = io_in_tvalid ? _GEN_96 : info_buf_reg_0_valid; // @[RxBufferFifo.scala 108:29 47:29]
-  wire  _GEN_123 = io_in_tvalid ? _GEN_97 : info_buf_reg_1_valid; // @[RxBufferFifo.scala 108:29 47:29]
-  wire [15:0] _GEN_124 = io_in_tvalid ? _GEN_98 : info_buf_reg_0_ip_chksum; // @[RxBufferFifo.scala 108:29 47:29]
-  wire [15:0] _GEN_125 = io_in_tvalid ? _GEN_99 : info_buf_reg_1_ip_chksum; // @[RxBufferFifo.scala 108:29 47:29]
-  wire [15:0] _GEN_126 = io_in_tvalid ? _GEN_100 : info_buf_reg_0_tcp_chksum; // @[RxBufferFifo.scala 108:29 47:29]
-  wire [15:0] _GEN_127 = io_in_tvalid ? _GEN_101 : info_buf_reg_1_tcp_chksum; // @[RxBufferFifo.scala 108:29 47:29]
-  wire [15:0] _GEN_128 = io_in_tvalid ? _GEN_102 : info_buf_reg_0_len; // @[RxBufferFifo.scala 108:29 47:29]
-  wire [15:0] _GEN_129 = io_in_tvalid ? _GEN_103 : info_buf_reg_1_len; // @[RxBufferFifo.scala 108:29 47:29]
-  wire [5:0] _GEN_130 = io_in_tvalid ? _GEN_104 : info_buf_reg_0_qid; // @[RxBufferFifo.scala 108:29 47:29]
-  wire [5:0] _GEN_131 = io_in_tvalid ? _GEN_105 : info_buf_reg_1_qid; // @[RxBufferFifo.scala 108:29 47:29]
-  wire [6:0] _GEN_132 = io_in_tvalid ? _GEN_106 : wr_index_reg; // @[RxBufferFifo.scala 108:29 48:29]
-  wire [13:0] _GEN_133 = io_in_tvalid ? _GEN_107 : {{7'd0}, wr_pos_reg}; // @[RxBufferFifo.scala 108:29 50:29]
-  wire  _GEN_134 = io_in_tvalid ? _GEN_108 : is_overflowed; // @[RxBufferFifo.scala 108:29 66:30]
-  wire [31:0] _GEN_135 = io_in_tlast & io_in_tuser ? _err_counter_T_1 : err_counter; // @[RxBufferFifo.scala 104:45 105:19 60:28]
-  wire [13:0] _GEN_136 = io_in_tlast & io_in_tuser ? _wr_pos_reg_T : _GEN_133; // @[RxBufferFifo.scala 104:45 106:18]
-  wire [5:0] _GEN_137 = io_in_tlast & io_in_tuser ? _GEN_5 : _GEN_120; // @[RxBufferFifo.scala 104:45]
-  wire [5:0] _GEN_138 = io_in_tlast & io_in_tuser ? _GEN_6 : _GEN_121; // @[RxBufferFifo.scala 104:45]
-  wire [15:0] _GEN_139 = io_in_tlast & io_in_tuser ? _GEN_7 : _GEN_126; // @[RxBufferFifo.scala 104:45]
-  wire [15:0] _GEN_140 = io_in_tlast & io_in_tuser ? _GEN_8 : _GEN_127; // @[RxBufferFifo.scala 104:45]
-  wire [15:0] _GEN_141 = io_in_tlast & io_in_tuser ? _GEN_9 : _GEN_124; // @[RxBufferFifo.scala 104:45]
-  wire [15:0] _GEN_142 = io_in_tlast & io_in_tuser ? _GEN_10 : _GEN_125; // @[RxBufferFifo.scala 104:45]
-  wire [15:0] _GEN_143 = io_in_tlast & io_in_tuser ? _GEN_11 : _GEN_128; // @[RxBufferFifo.scala 104:45]
-  wire [15:0] _GEN_144 = io_in_tlast & io_in_tuser ? _GEN_12 : _GEN_129; // @[RxBufferFifo.scala 104:45]
-  wire [5:0] _GEN_145 = io_in_tlast & io_in_tuser ? _GEN_13 : _GEN_130; // @[RxBufferFifo.scala 104:45]
-  wire [5:0] _GEN_146 = io_in_tlast & io_in_tuser ? _GEN_14 : _GEN_131; // @[RxBufferFifo.scala 104:45]
-  wire [1:0] _GEN_147 = io_in_tlast & io_in_tuser ? _GEN_15 : _GEN_111; // @[RxBufferFifo.scala 104:45]
-  wire [1:0] _GEN_148 = io_in_tlast & io_in_tuser ? _GEN_16 : _GEN_112; // @[RxBufferFifo.scala 104:45]
-  wire  _GEN_149 = io_in_tlast & io_in_tuser ? _GEN_17 : _GEN_113; // @[RxBufferFifo.scala 104:45]
-  wire  _GEN_150 = io_in_tlast & io_in_tuser ? _GEN_18 : _GEN_114; // @[RxBufferFifo.scala 104:45]
-  wire  _GEN_151 = io_in_tlast & io_in_tuser ? _GEN_19 : _GEN_122; // @[RxBufferFifo.scala 104:45]
-  wire  _GEN_152 = io_in_tlast & io_in_tuser ? _GEN_20 : _GEN_123; // @[RxBufferFifo.scala 104:45]
-  wire  _GEN_153 = io_in_tlast & io_in_tuser ? _GEN_21 : _GEN_109; // @[RxBufferFifo.scala 104:45]
-  wire  _GEN_154 = io_in_tlast & io_in_tuser ? _GEN_22 : _GEN_110; // @[RxBufferFifo.scala 104:45]
-  wire  _GEN_157 = io_in_tlast & io_in_tuser ? 1'h0 : _GEN_117; // @[RxBufferFifo.scala 104:45 44:33]
-  wire [6:0] _GEN_160 = io_in_tlast & io_in_tuser ? wr_index_reg : _GEN_132; // @[RxBufferFifo.scala 104:45 48:29]
-  wire  _GEN_161 = io_in_tlast & io_in_tuser ? is_overflowed : _GEN_134; // @[RxBufferFifo.scala 104:45 66:30]
-  wire [13:0] _GEN_163 = _GEN_2 == 6'h20 ? _GEN_4 : _GEN_136; // @[RxBufferFifo.scala 89:61]
-  wire [5:0] _GEN_165 = _GEN_2 == 6'h20 ? _GEN_5 : _GEN_137; // @[RxBufferFifo.scala 89:61]
-  wire [5:0] _GEN_166 = _GEN_2 == 6'h20 ? _GEN_6 : _GEN_138; // @[RxBufferFifo.scala 89:61]
-  wire [15:0] _GEN_167 = _GEN_2 == 6'h20 ? _GEN_7 : _GEN_139; // @[RxBufferFifo.scala 89:61]
-  wire [15:0] _GEN_168 = _GEN_2 == 6'h20 ? _GEN_8 : _GEN_140; // @[RxBufferFifo.scala 89:61]
-  wire [15:0] _GEN_169 = _GEN_2 == 6'h20 ? _GEN_9 : _GEN_141; // @[RxBufferFifo.scala 89:61]
-  wire [15:0] _GEN_170 = _GEN_2 == 6'h20 ? _GEN_10 : _GEN_142; // @[RxBufferFifo.scala 89:61]
-  wire [15:0] _GEN_171 = _GEN_2 == 6'h20 ? _GEN_11 : _GEN_143; // @[RxBufferFifo.scala 89:61]
-  wire [15:0] _GEN_172 = _GEN_2 == 6'h20 ? _GEN_12 : _GEN_144; // @[RxBufferFifo.scala 89:61]
-  wire [5:0] _GEN_173 = _GEN_2 == 6'h20 ? _GEN_13 : _GEN_145; // @[RxBufferFifo.scala 89:61]
-  wire [5:0] _GEN_174 = _GEN_2 == 6'h20 ? _GEN_14 : _GEN_146; // @[RxBufferFifo.scala 89:61]
-  wire [1:0] _GEN_175 = _GEN_2 == 6'h20 ? _GEN_15 : _GEN_147; // @[RxBufferFifo.scala 89:61]
-  wire [1:0] _GEN_176 = _GEN_2 == 6'h20 ? _GEN_16 : _GEN_148; // @[RxBufferFifo.scala 89:61]
-  wire  _GEN_177 = _GEN_2 == 6'h20 ? _GEN_17 : _GEN_149; // @[RxBufferFifo.scala 89:61]
-  wire  _GEN_178 = _GEN_2 == 6'h20 ? _GEN_18 : _GEN_150; // @[RxBufferFifo.scala 89:61]
-  wire  _GEN_179 = _GEN_2 == 6'h20 ? _GEN_19 : _GEN_151; // @[RxBufferFifo.scala 89:61]
-  wire  _GEN_180 = _GEN_2 == 6'h20 ? _GEN_20 : _GEN_152; // @[RxBufferFifo.scala 89:61]
-  wire  _GEN_181 = _GEN_2 == 6'h20 ? _GEN_21 : _GEN_153; // @[RxBufferFifo.scala 89:61]
-  wire  _GEN_182 = _GEN_2 == 6'h20 ? _GEN_22 : _GEN_154; // @[RxBufferFifo.scala 89:61]
-  wire  _GEN_185 = _GEN_2 == 6'h20 ? 1'h0 : _GEN_157; // @[RxBufferFifo.scala 44:33 89:61]
-  wire [13:0] _GEN_191 = in_shake_hand ? _GEN_163 : {{7'd0}, wr_pos_reg}; // @[RxBufferFifo.scala 50:29 85:29]
-  wire [5:0] _GEN_193 = in_shake_hand ? _GEN_165 : info_buf_reg_0_burst; // @[RxBufferFifo.scala 47:29 85:29]
-  wire [5:0] _GEN_194 = in_shake_hand ? _GEN_166 : info_buf_reg_1_burst; // @[RxBufferFifo.scala 47:29 85:29]
-  wire [15:0] _GEN_195 = in_shake_hand ? _GEN_167 : info_buf_reg_0_tcp_chksum; // @[RxBufferFifo.scala 47:29 85:29]
-  wire [15:0] _GEN_196 = in_shake_hand ? _GEN_168 : info_buf_reg_1_tcp_chksum; // @[RxBufferFifo.scala 47:29 85:29]
-  wire [15:0] _GEN_197 = in_shake_hand ? _GEN_169 : info_buf_reg_0_ip_chksum; // @[RxBufferFifo.scala 47:29 85:29]
-  wire [15:0] _GEN_198 = in_shake_hand ? _GEN_170 : info_buf_reg_1_ip_chksum; // @[RxBufferFifo.scala 47:29 85:29]
-  wire [15:0] _GEN_199 = in_shake_hand ? _GEN_171 : info_buf_reg_0_len; // @[RxBufferFifo.scala 47:29 85:29]
-  wire [15:0] _GEN_200 = in_shake_hand ? _GEN_172 : info_buf_reg_1_len; // @[RxBufferFifo.scala 47:29 85:29]
-  wire [5:0] _GEN_201 = in_shake_hand ? _GEN_173 : info_buf_reg_0_qid; // @[RxBufferFifo.scala 47:29 85:29]
-  wire [5:0] _GEN_202 = in_shake_hand ? _GEN_174 : info_buf_reg_1_qid; // @[RxBufferFifo.scala 47:29 85:29]
-  wire [1:0] _GEN_203 = in_shake_hand ? _GEN_175 : info_buf_reg_0_pkt_type; // @[RxBufferFifo.scala 47:29 85:29]
-  wire [1:0] _GEN_204 = in_shake_hand ? _GEN_176 : info_buf_reg_1_pkt_type; // @[RxBufferFifo.scala 47:29 85:29]
-  wire  _GEN_205 = in_shake_hand ? _GEN_177 : info_buf_reg_0_chksum_offload; // @[RxBufferFifo.scala 47:29 85:29]
-  wire  _GEN_206 = in_shake_hand ? _GEN_178 : info_buf_reg_1_chksum_offload; // @[RxBufferFifo.scala 47:29 85:29]
-  wire  _GEN_207 = in_shake_hand ? _GEN_179 : info_buf_reg_0_valid; // @[RxBufferFifo.scala 47:29 85:29]
-  wire  _GEN_208 = in_shake_hand ? _GEN_180 : info_buf_reg_1_valid; // @[RxBufferFifo.scala 47:29 85:29]
-  wire  _GEN_209 = in_shake_hand ? _GEN_181 : info_buf_reg_0_used; // @[RxBufferFifo.scala 47:29 85:29]
-  wire  _GEN_210 = in_shake_hand ? _GEN_182 : info_buf_reg_1_used; // @[RxBufferFifo.scala 47:29 85:29]
-  wire  _GEN_213 = in_shake_hand & _GEN_185; // @[RxBufferFifo.scala 85:29 44:33]
-  wire [13:0] _GEN_220 = io_reset_counter ? {{7'd0}, wr_pos_reg} : _GEN_191; // @[RxBufferFifo.scala 81:26 50:29]
-  wire [5:0] _GEN_221 = io_reset_counter ? info_buf_reg_0_burst : _GEN_193; // @[RxBufferFifo.scala 81:26 47:29]
-  wire [5:0] _GEN_222 = io_reset_counter ? info_buf_reg_1_burst : _GEN_194; // @[RxBufferFifo.scala 81:26 47:29]
-  wire [15:0] _GEN_223 = io_reset_counter ? info_buf_reg_0_tcp_chksum : _GEN_195; // @[RxBufferFifo.scala 81:26 47:29]
-  wire [15:0] _GEN_224 = io_reset_counter ? info_buf_reg_1_tcp_chksum : _GEN_196; // @[RxBufferFifo.scala 81:26 47:29]
-  wire [15:0] _GEN_225 = io_reset_counter ? info_buf_reg_0_ip_chksum : _GEN_197; // @[RxBufferFifo.scala 81:26 47:29]
-  wire [15:0] _GEN_226 = io_reset_counter ? info_buf_reg_1_ip_chksum : _GEN_198; // @[RxBufferFifo.scala 81:26 47:29]
-  wire [15:0] _GEN_227 = io_reset_counter ? info_buf_reg_0_len : _GEN_199; // @[RxBufferFifo.scala 81:26 47:29]
-  wire [15:0] _GEN_228 = io_reset_counter ? info_buf_reg_1_len : _GEN_200; // @[RxBufferFifo.scala 81:26 47:29]
-  wire [5:0] _GEN_229 = io_reset_counter ? info_buf_reg_0_qid : _GEN_201; // @[RxBufferFifo.scala 81:26 47:29]
-  wire [5:0] _GEN_230 = io_reset_counter ? info_buf_reg_1_qid : _GEN_202; // @[RxBufferFifo.scala 81:26 47:29]
-  wire [1:0] _GEN_231 = io_reset_counter ? info_buf_reg_0_pkt_type : _GEN_203; // @[RxBufferFifo.scala 81:26 47:29]
-  wire [1:0] _GEN_232 = io_reset_counter ? info_buf_reg_1_pkt_type : _GEN_204; // @[RxBufferFifo.scala 81:26 47:29]
-  wire  _GEN_233 = io_reset_counter ? info_buf_reg_0_chksum_offload : _GEN_205; // @[RxBufferFifo.scala 81:26 47:29]
-  wire  _GEN_234 = io_reset_counter ? info_buf_reg_1_chksum_offload : _GEN_206; // @[RxBufferFifo.scala 81:26 47:29]
-  wire  _GEN_235 = io_reset_counter ? info_buf_reg_0_valid : _GEN_207; // @[RxBufferFifo.scala 81:26 47:29]
-  wire  _GEN_236 = io_reset_counter ? info_buf_reg_1_valid : _GEN_208; // @[RxBufferFifo.scala 81:26 47:29]
-  wire  _GEN_237 = io_reset_counter ? info_buf_reg_0_used : _GEN_209; // @[RxBufferFifo.scala 81:26 47:29]
-  wire  _GEN_238 = io_reset_counter ? info_buf_reg_1_used : _GEN_210; // @[RxBufferFifo.scala 81:26 47:29]
-  wire  _GEN_246 = rd_index_reg[0] ? info_buf_reg_1_valid : info_buf_reg_0_valid; // @[RxBufferFifo.scala 141:{38,38}]
-  wire  out_shake_hand = io_out_tready & _GEN_246; // @[RxBufferFifo.scala 141:38]
-  wire [5:0] _GEN_252 = rd_index_reg[0] ? info_buf_reg_1_burst : info_buf_reg_0_burst; // @[RxBufferFifo.scala 152:{89,89}]
-  wire  _io_out_tlast_T_2 = _GEN_252 == 6'h1; // @[RxBufferFifo.scala 152:89]
-  wire  _GEN_256 = rd_index_reg[0] ? info_buf_reg_1_chksum_offload : info_buf_reg_0_chksum_offload; // @[RxBufferFifo.scala 144:{7,7}]
-  wire [1:0] _GEN_258 = rd_index_reg[0] ? info_buf_reg_1_pkt_type : info_buf_reg_0_pkt_type; // @[RxBufferFifo.scala 145:{43,43}]
-  wire [15:0] _GEN_260 = rd_index_reg[0] ? info_buf_reg_1_ip_chksum : info_buf_reg_0_ip_chksum; // @[RxBufferFifo.scala 145:{88,88}]
-  wire [15:0] _GEN_264 = rd_index_reg[0] ? info_buf_reg_1_tcp_chksum : info_buf_reg_0_tcp_chksum; // @[RxBufferFifo.scala 146:{88,88}]
-  wire  _io_out_tvalid_T_14 = ~_GEN_258[1] | _GEN_264 == 16'h0; // @[RxBufferFifo.scala 146:47]
-  wire  _io_out_tvalid_T_15 = (~_GEN_258[0] | _GEN_260 == 16'h0) & _io_out_tvalid_T_14; // @[RxBufferFifo.scala 145:97]
-  wire  _io_out_tvalid_T_16 = ~_GEN_256 | _io_out_tvalid_T_15; // @[RxBufferFifo.scala 144:50]
-  wire  _wrong_chksum_counter_T_18 = io_out_tready & io_out_tlast & ~_io_out_tvalid_T_16; // @[RxBufferFifo.scala 156:80]
-  wire [31:0] _GEN_349 = {{31'd0}, _wrong_chksum_counter_T_18}; // @[RxBufferFifo.scala 156:48]
-  wire [31:0] _wrong_chksum_counter_T_20 = wrong_chksum_counter + _GEN_349; // @[RxBufferFifo.scala 156:48]
-  wire [6:0] _rd_pos_next_T_1 = rd_index_reg + 7'h1; // @[RxBufferFifo.scala 38:12]
-  wire [6:0] _rd_pos_next_T_2 = _rd_pos_next_T_1 & 7'h1; // @[RxBufferFifo.scala 38:19]
-  wire [11:0] _GEN_350 = {_rd_pos_next_T_2, 5'h0}; // @[RxBufferFifo.scala 175:44]
-  wire [13:0] _rd_pos_next_T_3 = {{2'd0}, _GEN_350}; // @[RxBufferFifo.scala 175:44]
-  wire [6:0] _rd_pos_next_T_5 = rd_pos_reg + 7'h1; // @[RxBufferFifo.scala 177:31]
-  wire [13:0] _GEN_342 = _io_out_tlast_T_2 ? _rd_pos_next_T_3 : {{7'd0}, _rd_pos_next_T_5}; // @[RxBufferFifo.scala 174:51 175:17 177:17]
-  wire [6:0] rd_pos_next = _GEN_342[6:0];
-  wire [6:0] _io_out_tdata_T = out_shake_hand ? rd_pos_next : rd_pos_reg; // @[RxBufferFifo.scala 160:36]
-  wire [5:0] _info_buf_reg_burst_T_5 = _GEN_252 - 6'h1; // @[RxBufferFifo.scala 170:78]
-  wire [13:0] _GEN_351 = reset ? 14'h0 : _GEN_220; // @[RxBufferFifo.scala 50:{29,29}]
-  assign data_buf_reg_io_out_tdata_MPORT_en = data_buf_reg_io_out_tdata_MPORT_en_pipe_0;
-  assign data_buf_reg_io_out_tdata_MPORT_addr = data_buf_reg_io_out_tdata_MPORT_addr_pipe_0;
-  assign data_buf_reg_io_out_tdata_MPORT_data = data_buf_reg[data_buf_reg_io_out_tdata_MPORT_addr]; // @[RxBufferFifo.scala 44:33]
-  assign data_buf_reg_MPORT_data = io_in_tdata;
-  assign data_buf_reg_MPORT_addr = wr_pos_reg[5:0];
-  assign data_buf_reg_MPORT_mask = 1'h1;
-  assign data_buf_reg_MPORT_en = io_reset_counter ? 1'h0 : _GEN_213;
-  assign io_in_tready = ~buf_full; // @[RxBufferFifo.scala 58:19]
-  assign io_out_tdata = data_buf_reg_io_out_tdata_MPORT_data; // @[RxBufferFifo.scala 160:17]
-  assign io_out_tvalid = _GEN_246 & _io_out_tvalid_T_16; // @[RxBufferFifo.scala 155:53]
-  assign io_out_tlast = _GEN_246 & _GEN_252 == 6'h1; // @[RxBufferFifo.scala 152:53]
-  assign io_out_qid = rd_index_reg[0] ? info_buf_reg_1_qid : info_buf_reg_0_qid; // @[RxBufferFifo.scala 149:{17,17}]
-  assign io_out_tlen = rd_index_reg[0] ? info_buf_reg_1_len : info_buf_reg_0_len; // @[RxBufferFifo.scala 150:{17,17}]
-  assign io_c2h_pack_counter = pack_counter; // @[RxBufferFifo.scala 63:23]
-  assign io_c2h_err_counter = err_counter + wrong_chksum_counter; // @[RxBufferFifo.scala 64:37]
+  wire [15:0] end_tcp_chksum = ~_end_tcp_chksum_T_3; // @[RxBufferFifo2.scala 48:21]
+  wire  true_in_shake_hand = io_in_tvalid & ~io_in_tuser; // @[RxBufferFifo2.scala 56:41]
+  wire [31:0] _c2h_err_counter_reg_T_1 = c2h_err_counter_reg + 32'h1; // @[RxBufferFifo2.scala 64:50]
+  wire [31:0] _c2h_pack_counter_reg_T_1 = c2h_pack_counter_reg + 32'h1; // @[RxBufferFifo2.scala 67:52]
+  wire [15:0] _T_7 = {rx_data_fifo_m_axis_tdata[103:96],rx_data_fifo_m_axis_tdata[111:104]}; // @[Cat.scala 31:58]
+  wire  _T_9 = ~(_T_7 == 16'h800); // @[RxBufferFifo2.scala 52:7]
+  wire  _T_10 = ~io_in_extern_config_c2h_match_op[6] | _T_9; // @[RxBufferFifo2.scala 51:42]
+  wire  _T_17 = end_ip_chksum == 16'h0 & (~(rx_data_fifo_m_axis_tdata[191:184] == 8'h6) | end_tcp_chksum == 16'h0); // @[RxBufferFifo2.scala 53:29]
+  wire  _T_18 = _T_10 | _T_17; // @[RxBufferFifo2.scala 52:80]
+  wire [31:0] _wrong_chksum_counter_T_1 = wrong_chksum_counter + 32'h1; // @[RxBufferFifo2.scala 69:54]
+  wire [85:0] _rx_info_fifo_io_s_axis_tdata_T = {io_in_rx_info_tlen,io_in_rx_info_qid,io_in_rx_info_ip_chksum,
+    io_in_rx_info_tcp_chksum}; // @[RxBufferFifo2.scala 82:49]
+  BufferFifoIP_128 rx_info_fifo ( // @[RxBufferFifo2.scala 23:28]
+    .s_axis_aclk(rx_info_fifo_s_axis_aclk),
+    .s_axis_aresetn(rx_info_fifo_s_axis_aresetn),
+    .s_axis_tdata(rx_info_fifo_s_axis_tdata),
+    .s_axis_tlast(rx_info_fifo_s_axis_tlast),
+    .s_axis_tready(rx_info_fifo_s_axis_tready),
+    .s_axis_tvalid(rx_info_fifo_s_axis_tvalid),
+    .m_axis_tdata(rx_info_fifo_m_axis_tdata),
+    .m_axis_tlast(rx_info_fifo_m_axis_tlast),
+    .m_axis_tready(rx_info_fifo_m_axis_tready),
+    .m_axis_tvalid(rx_info_fifo_m_axis_tvalid)
+  );
+  BufferFifoIP_512 rx_data_fifo ( // @[RxBufferFifo2.scala 24:28]
+    .s_axis_aclk(rx_data_fifo_s_axis_aclk),
+    .s_axis_aresetn(rx_data_fifo_s_axis_aresetn),
+    .s_axis_tdata(rx_data_fifo_s_axis_tdata),
+    .s_axis_tlast(rx_data_fifo_s_axis_tlast),
+    .s_axis_tready(rx_data_fifo_s_axis_tready),
+    .s_axis_tvalid(rx_data_fifo_s_axis_tvalid),
+    .m_axis_tdata(rx_data_fifo_m_axis_tdata),
+    .m_axis_tlast(rx_data_fifo_m_axis_tlast),
+    .m_axis_tready(rx_data_fifo_m_axis_tready),
+    .m_axis_tvalid(rx_data_fifo_m_axis_tvalid)
+  );
+  assign io_in_tready = rx_data_fifo_s_axis_tready & rx_info_fifo_s_axis_tready; // @[RxBufferFifo2.scala 86:49]
+  assign io_out_tdata = rx_data_fifo_m_axis_tdata; // @[RxBufferFifo2.scala 92:16]
+  assign io_out_tvalid = rx_data_fifo_m_axis_tvalid; // @[RxBufferFifo2.scala 93:17]
+  assign io_out_tlast = rx_data_fifo_m_axis_tlast; // @[RxBufferFifo2.scala 94:16]
+  assign io_out_qid = rx_info_fifo_m_axis_tdata[69:64]; // @[RxBufferFifo2.scala 38:55]
+  assign io_out_tlen = rx_info_fifo_m_axis_tdata[85:70]; // @[RxBufferFifo2.scala 38:55]
+  assign io_c2h_pack_counter = c2h_pack_counter_reg; // @[RxBufferFifo2.scala 75:23]
+  assign io_c2h_err_counter = wrong_chksum_counter + c2h_err_counter_reg; // @[RxBufferFifo2.scala 74:46]
+  assign rx_info_fifo_s_axis_aclk = clock; // @[RxBufferFifo2.scala 26:31]
+  assign rx_info_fifo_s_axis_aresetn = ~reset; // @[RxBufferFifo2.scala 28:37]
+  assign rx_info_fifo_s_axis_tdata = {{42'd0}, _rx_info_fifo_io_s_axis_tdata_T}; // @[RxBufferFifo2.scala 82:32]
+  assign rx_info_fifo_s_axis_tlast = io_in_tlast & true_in_shake_hand; // @[RxBufferFifo2.scala 84:48]
+  assign rx_info_fifo_s_axis_tvalid = io_in_tlast & true_in_shake_hand; // @[RxBufferFifo2.scala 83:48]
+  assign rx_info_fifo_m_axis_tready = out_shake_hand & io_out_tlast; // @[RxBufferFifo2.scala 90:51]
+  assign rx_data_fifo_s_axis_aclk = clock; // @[RxBufferFifo2.scala 27:31]
+  assign rx_data_fifo_s_axis_aresetn = ~reset; // @[RxBufferFifo2.scala 29:37]
+  assign rx_data_fifo_s_axis_tdata = io_in_tdata; // @[RxBufferFifo2.scala 78:32]
+  assign rx_data_fifo_s_axis_tlast = io_in_tlast; // @[RxBufferFifo2.scala 80:32]
+  assign rx_data_fifo_s_axis_tvalid = io_in_tvalid & ~io_in_tuser; // @[RxBufferFifo2.scala 56:41]
+  assign rx_data_fifo_m_axis_tready = io_out_tready; // @[RxBufferFifo2.scala 89:33]
   always @(posedge clock) begin
-    if (data_buf_reg_MPORT_en & data_buf_reg_MPORT_mask) begin
-      data_buf_reg[data_buf_reg_MPORT_addr] <= data_buf_reg_MPORT_data; // @[RxBufferFifo.scala 44:33]
+    if (reset) begin // @[RxBufferFifo2.scala 31:37]
+      c2h_pack_counter_reg <= 32'h0; // @[RxBufferFifo2.scala 31:37]
+    end else if (io_reset_counter) begin // @[RxBufferFifo2.scala 58:26]
+      c2h_pack_counter_reg <= 32'h0; // @[RxBufferFifo2.scala 59:26]
+    end else if (true_in_shake_hand & io_in_tlast) begin // @[RxBufferFifo2.scala 66:44]
+      c2h_pack_counter_reg <= _c2h_pack_counter_reg_T_1; // @[RxBufferFifo2.scala 67:28]
     end
-    data_buf_reg_io_out_tdata_MPORT_en_pipe_0 <= 1'h1;
-    if (1'h1) begin
-      data_buf_reg_io_out_tdata_MPORT_addr_pipe_0 <= _io_out_tdata_T[5:0];
+    if (reset) begin // @[RxBufferFifo2.scala 32:37]
+      c2h_err_counter_reg <= 32'h0; // @[RxBufferFifo2.scala 32:37]
+    end else if (io_reset_counter) begin // @[RxBufferFifo2.scala 58:26]
+      c2h_err_counter_reg <= 32'h0; // @[RxBufferFifo2.scala 60:25]
+    end else if (in_shake_hand & io_in_tuser) begin // @[RxBufferFifo2.scala 63:40]
+      c2h_err_counter_reg <= _c2h_err_counter_reg_T_1; // @[RxBufferFifo2.scala 64:27]
     end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_0_used <= 1'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (~rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_0_used <= 1'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_0_used <= _GEN_237;
-        end
-      end else begin
-        info_buf_reg_0_used <= _GEN_237;
-      end
-    end else begin
-      info_buf_reg_0_used <= _GEN_237;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_0_valid <= 1'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (~rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_0_valid <= 1'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_0_valid <= _GEN_235;
-        end
-      end else begin
-        info_buf_reg_0_valid <= _GEN_235;
-      end
-    end else begin
-      info_buf_reg_0_valid <= _GEN_235;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_0_chksum_offload <= 1'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (~rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_0_chksum_offload <= 1'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_0_chksum_offload <= _GEN_233;
-        end
-      end else begin
-        info_buf_reg_0_chksum_offload <= _GEN_233;
-      end
-    end else begin
-      info_buf_reg_0_chksum_offload <= _GEN_233;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_0_pkt_type <= 2'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (~rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_0_pkt_type <= 2'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_0_pkt_type <= _GEN_231;
-        end
-      end else begin
-        info_buf_reg_0_pkt_type <= _GEN_231;
-      end
-    end else begin
-      info_buf_reg_0_pkt_type <= _GEN_231;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_0_qid <= 6'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (~rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_0_qid <= 6'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_0_qid <= _GEN_229;
-        end
-      end else begin
-        info_buf_reg_0_qid <= _GEN_229;
-      end
-    end else begin
-      info_buf_reg_0_qid <= _GEN_229;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_0_len <= 16'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (~rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_0_len <= 16'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_0_len <= _GEN_227;
-        end
-      end else begin
-        info_buf_reg_0_len <= _GEN_227;
-      end
-    end else begin
-      info_buf_reg_0_len <= _GEN_227;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_0_ip_chksum <= 16'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (~rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_0_ip_chksum <= 16'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_0_ip_chksum <= _GEN_225;
-        end
-      end else begin
-        info_buf_reg_0_ip_chksum <= _GEN_225;
-      end
-    end else begin
-      info_buf_reg_0_ip_chksum <= _GEN_225;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_0_tcp_chksum <= 16'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (~rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_0_tcp_chksum <= 16'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_0_tcp_chksum <= _GEN_223;
-        end
-      end else begin
-        info_buf_reg_0_tcp_chksum <= _GEN_223;
-      end
-    end else begin
-      info_buf_reg_0_tcp_chksum <= _GEN_223;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_0_burst <= 6'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (~rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_0_burst <= 6'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_0_burst <= _GEN_221;
-        end
-      end else if (~rd_index_reg[0]) begin // @[RxBufferFifo.scala 170:42]
-        info_buf_reg_0_burst <= _info_buf_reg_burst_T_5; // @[RxBufferFifo.scala 170:42]
-      end else begin
-        info_buf_reg_0_burst <= _GEN_221;
-      end
-    end else begin
-      info_buf_reg_0_burst <= _GEN_221;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_1_used <= 1'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_1_used <= 1'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_1_used <= _GEN_238;
-        end
-      end else begin
-        info_buf_reg_1_used <= _GEN_238;
-      end
-    end else begin
-      info_buf_reg_1_used <= _GEN_238;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_1_valid <= 1'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_1_valid <= 1'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_1_valid <= _GEN_236;
-        end
-      end else begin
-        info_buf_reg_1_valid <= _GEN_236;
-      end
-    end else begin
-      info_buf_reg_1_valid <= _GEN_236;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_1_chksum_offload <= 1'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_1_chksum_offload <= 1'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_1_chksum_offload <= _GEN_234;
-        end
-      end else begin
-        info_buf_reg_1_chksum_offload <= _GEN_234;
-      end
-    end else begin
-      info_buf_reg_1_chksum_offload <= _GEN_234;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_1_pkt_type <= 2'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_1_pkt_type <= 2'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_1_pkt_type <= _GEN_232;
-        end
-      end else begin
-        info_buf_reg_1_pkt_type <= _GEN_232;
-      end
-    end else begin
-      info_buf_reg_1_pkt_type <= _GEN_232;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_1_qid <= 6'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_1_qid <= 6'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_1_qid <= _GEN_230;
-        end
-      end else begin
-        info_buf_reg_1_qid <= _GEN_230;
-      end
-    end else begin
-      info_buf_reg_1_qid <= _GEN_230;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_1_len <= 16'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_1_len <= 16'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_1_len <= _GEN_228;
-        end
-      end else begin
-        info_buf_reg_1_len <= _GEN_228;
-      end
-    end else begin
-      info_buf_reg_1_len <= _GEN_228;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_1_ip_chksum <= 16'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_1_ip_chksum <= 16'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_1_ip_chksum <= _GEN_226;
-        end
-      end else begin
-        info_buf_reg_1_ip_chksum <= _GEN_226;
-      end
-    end else begin
-      info_buf_reg_1_ip_chksum <= _GEN_226;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_1_tcp_chksum <= 16'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_1_tcp_chksum <= 16'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_1_tcp_chksum <= _GEN_224;
-        end
-      end else begin
-        info_buf_reg_1_tcp_chksum <= _GEN_224;
-      end
-    end else begin
-      info_buf_reg_1_tcp_chksum <= _GEN_224;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 47:29]
-      info_buf_reg_1_burst <= 6'h0; // @[RxBufferFifo.scala 47:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        if (rd_index_reg[0]) begin // @[RxBufferFifo.scala 167:36]
-          info_buf_reg_1_burst <= 6'h0; // @[RxBufferFifo.scala 167:36]
-        end else begin
-          info_buf_reg_1_burst <= _GEN_222;
-        end
-      end else if (rd_index_reg[0]) begin // @[RxBufferFifo.scala 170:42]
-        info_buf_reg_1_burst <= _info_buf_reg_burst_T_5; // @[RxBufferFifo.scala 170:42]
-      end else begin
-        info_buf_reg_1_burst <= _GEN_222;
-      end
-    end else begin
-      info_buf_reg_1_burst <= _GEN_222;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 48:29]
-      wr_index_reg <= 7'h0; // @[RxBufferFifo.scala 48:29]
-    end else if (!(io_reset_counter)) begin // @[RxBufferFifo.scala 81:26]
-      if (in_shake_hand) begin // @[RxBufferFifo.scala 85:29]
-        if (!(_GEN_2 == 6'h20)) begin // @[RxBufferFifo.scala 89:61]
-          wr_index_reg <= _GEN_160;
-        end
-      end
-    end
-    if (reset) begin // @[RxBufferFifo.scala 49:29]
-      rd_index_reg <= 7'h0; // @[RxBufferFifo.scala 49:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 162:24]
-      if (_io_out_tlast_T_2) begin // @[RxBufferFifo.scala 166:55]
-        rd_index_reg <= _rd_pos_next_T_2; // @[RxBufferFifo.scala 168:22]
-      end
-    end
-    wr_pos_reg <= _GEN_351[6:0]; // @[RxBufferFifo.scala 50:{29,29}]
-    if (reset) begin // @[RxBufferFifo.scala 51:29]
-      rd_pos_reg <= 7'h0; // @[RxBufferFifo.scala 51:29]
-    end else if (out_shake_hand) begin // @[RxBufferFifo.scala 160:36]
-      rd_pos_reg <= rd_pos_next;
-    end
-    if (reset) begin // @[RxBufferFifo.scala 59:29]
-      pack_counter <= 32'h0; // @[RxBufferFifo.scala 59:29]
-    end else if (io_reset_counter) begin // @[RxBufferFifo.scala 81:26]
-      pack_counter <= 32'h0; // @[RxBufferFifo.scala 82:18]
-    end else if (in_shake_hand) begin // @[RxBufferFifo.scala 85:29]
-      if (io_in_tlast) begin // @[RxBufferFifo.scala 86:24]
-        pack_counter <= _pack_counter_T_1; // @[RxBufferFifo.scala 87:20]
-      end
-    end
-    if (reset) begin // @[RxBufferFifo.scala 60:28]
-      err_counter <= 32'h0; // @[RxBufferFifo.scala 60:28]
-    end else if (io_reset_counter) begin // @[RxBufferFifo.scala 81:26]
-      err_counter <= 32'h0; // @[RxBufferFifo.scala 83:17]
-    end else if (in_shake_hand) begin // @[RxBufferFifo.scala 85:29]
-      if (_GEN_2 == 6'h20) begin // @[RxBufferFifo.scala 89:61]
-        err_counter <= _err_counter_T_1; // @[RxBufferFifo.scala 101:19]
-      end else begin
-        err_counter <= _GEN_135;
-      end
-    end
-    if (reset) begin // @[RxBufferFifo.scala 61:37]
-      wrong_chksum_counter <= 32'h0; // @[RxBufferFifo.scala 61:37]
-    end else begin
-      wrong_chksum_counter <= _wrong_chksum_counter_T_20; // @[RxBufferFifo.scala 156:24]
-    end
-    if (reset) begin // @[RxBufferFifo.scala 66:30]
-      is_overflowed <= 1'h0; // @[RxBufferFifo.scala 66:30]
-    end else if (!(io_reset_counter)) begin // @[RxBufferFifo.scala 81:26]
-      if (in_shake_hand) begin // @[RxBufferFifo.scala 85:29]
-        if (_GEN_2 == 6'h20) begin // @[RxBufferFifo.scala 89:61]
-          is_overflowed <= _GEN_3;
-        end else begin
-          is_overflowed <= _GEN_161;
-        end
+    if (reset) begin // @[RxBufferFifo2.scala 33:37]
+      wrong_chksum_counter <= 32'h0; // @[RxBufferFifo2.scala 33:37]
+    end else if (io_reset_counter) begin // @[RxBufferFifo2.scala 58:26]
+      wrong_chksum_counter <= 32'h0; // @[RxBufferFifo2.scala 61:26]
+    end else if (true_in_shake_hand & io_in_tlast) begin // @[RxBufferFifo2.scala 66:44]
+      if (~_T_18) begin // @[RxBufferFifo2.scala 68:27]
+        wrong_chksum_counter <= _wrong_chksum_counter_T_1; // @[RxBufferFifo2.scala 69:30]
       end
     end
   end
@@ -6805,68 +5787,13 @@ initial begin
         #0.002 begin end
       `endif
     `endif
-`ifdef RANDOMIZE_MEM_INIT
-  _RAND_0 = {16{`RANDOM}};
-  for (initvar = 0; initvar < 64; initvar = initvar+1)
-    data_buf_reg[initvar] = _RAND_0[511:0];
-`endif // RANDOMIZE_MEM_INIT
 `ifdef RANDOMIZE_REG_INIT
+  _RAND_0 = {1{`RANDOM}};
+  c2h_pack_counter_reg = _RAND_0[31:0];
   _RAND_1 = {1{`RANDOM}};
-  data_buf_reg_io_out_tdata_MPORT_en_pipe_0 = _RAND_1[0:0];
+  c2h_err_counter_reg = _RAND_1[31:0];
   _RAND_2 = {1{`RANDOM}};
-  data_buf_reg_io_out_tdata_MPORT_addr_pipe_0 = _RAND_2[5:0];
-  _RAND_3 = {1{`RANDOM}};
-  info_buf_reg_0_used = _RAND_3[0:0];
-  _RAND_4 = {1{`RANDOM}};
-  info_buf_reg_0_valid = _RAND_4[0:0];
-  _RAND_5 = {1{`RANDOM}};
-  info_buf_reg_0_chksum_offload = _RAND_5[0:0];
-  _RAND_6 = {1{`RANDOM}};
-  info_buf_reg_0_pkt_type = _RAND_6[1:0];
-  _RAND_7 = {1{`RANDOM}};
-  info_buf_reg_0_qid = _RAND_7[5:0];
-  _RAND_8 = {1{`RANDOM}};
-  info_buf_reg_0_len = _RAND_8[15:0];
-  _RAND_9 = {1{`RANDOM}};
-  info_buf_reg_0_ip_chksum = _RAND_9[15:0];
-  _RAND_10 = {1{`RANDOM}};
-  info_buf_reg_0_tcp_chksum = _RAND_10[15:0];
-  _RAND_11 = {1{`RANDOM}};
-  info_buf_reg_0_burst = _RAND_11[5:0];
-  _RAND_12 = {1{`RANDOM}};
-  info_buf_reg_1_used = _RAND_12[0:0];
-  _RAND_13 = {1{`RANDOM}};
-  info_buf_reg_1_valid = _RAND_13[0:0];
-  _RAND_14 = {1{`RANDOM}};
-  info_buf_reg_1_chksum_offload = _RAND_14[0:0];
-  _RAND_15 = {1{`RANDOM}};
-  info_buf_reg_1_pkt_type = _RAND_15[1:0];
-  _RAND_16 = {1{`RANDOM}};
-  info_buf_reg_1_qid = _RAND_16[5:0];
-  _RAND_17 = {1{`RANDOM}};
-  info_buf_reg_1_len = _RAND_17[15:0];
-  _RAND_18 = {1{`RANDOM}};
-  info_buf_reg_1_ip_chksum = _RAND_18[15:0];
-  _RAND_19 = {1{`RANDOM}};
-  info_buf_reg_1_tcp_chksum = _RAND_19[15:0];
-  _RAND_20 = {1{`RANDOM}};
-  info_buf_reg_1_burst = _RAND_20[5:0];
-  _RAND_21 = {1{`RANDOM}};
-  wr_index_reg = _RAND_21[6:0];
-  _RAND_22 = {1{`RANDOM}};
-  rd_index_reg = _RAND_22[6:0];
-  _RAND_23 = {1{`RANDOM}};
-  wr_pos_reg = _RAND_23[6:0];
-  _RAND_24 = {1{`RANDOM}};
-  rd_pos_reg = _RAND_24[6:0];
-  _RAND_25 = {1{`RANDOM}};
-  pack_counter = _RAND_25[31:0];
-  _RAND_26 = {1{`RANDOM}};
-  err_counter = _RAND_26[31:0];
-  _RAND_27 = {1{`RANDOM}};
-  wrong_chksum_counter = _RAND_27[31:0];
-  _RAND_28 = {1{`RANDOM}};
-  is_overflowed = _RAND_28[0:0];
+  wrong_chksum_counter = _RAND_2[31:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
@@ -7114,7 +6041,7 @@ module RxHandler(
     .io_out_rx_info_tcp_chksum(rx_pipeline_io_out_rx_info_tcp_chksum),
     .io_out_extern_config_c2h_match_op(rx_pipeline_io_out_extern_config_c2h_match_op)
   );
-  RxBufferFifo rx_buffer_fifo ( // @[RxHandler.scala 45:30]
+  RxBufferFifo2 rx_buffer_fifo ( // @[RxHandler.scala 45:30]
     .clock(rx_buffer_fifo_clock),
     .reset(rx_buffer_fifo_reset),
     .io_in_tdata(rx_buffer_fifo_io_in_tdata),
@@ -7318,7 +6245,6 @@ module PackageHandler(
   wire  tx_handler_io_CMAC_in_tlast; // @[PackageHandler.scala 30:26]
   wire  tx_handler_io_reset_counter; // @[PackageHandler.scala 30:26]
   wire [31:0] tx_handler_io_h2c_pack_counter; // @[PackageHandler.scala 30:26]
-  wire [31:0] tx_handler_io_h2c_err_counter; // @[PackageHandler.scala 30:26]
   wire [7:0] tx_handler_io_extern_config_c2h_match_op; // @[PackageHandler.scala 30:26]
   wire [31:0] tx_handler_io_extern_config_c2h_match_arg_0; // @[PackageHandler.scala 30:26]
   wire [31:0] tx_handler_io_extern_config_c2h_match_arg_1; // @[PackageHandler.scala 30:26]
@@ -7383,7 +6309,6 @@ module PackageHandler(
     .io_CMAC_in_tlast(tx_handler_io_CMAC_in_tlast),
     .io_reset_counter(tx_handler_io_reset_counter),
     .io_h2c_pack_counter(tx_handler_io_h2c_pack_counter),
-    .io_h2c_err_counter(tx_handler_io_h2c_err_counter),
     .io_extern_config_c2h_match_op(tx_handler_io_extern_config_c2h_match_op),
     .io_extern_config_c2h_match_arg_0(tx_handler_io_extern_config_c2h_match_arg_0),
     .io_extern_config_c2h_match_arg_1(tx_handler_io_extern_config_c2h_match_arg_1),
@@ -7451,7 +6376,7 @@ module PackageHandler(
   assign io_c2h_pack_counter = rx_handler_io_c2h_pack_counter; // @[PackageHandler.scala 43:33]
   assign io_c2h_err_counter = rx_handler_io_c2h_err_counter; // @[PackageHandler.scala 44:33]
   assign io_h2c_pack_counter = tx_handler_io_h2c_pack_counter; // @[PackageHandler.scala 35:31]
-  assign io_h2c_err_counter = tx_handler_io_h2c_err_counter; // @[PackageHandler.scala 36:31]
+  assign io_h2c_err_counter = 32'h0; // @[PackageHandler.scala 36:31]
   assign tx_handler_clock = clock;
   assign tx_handler_reset = reset;
   assign tx_handler_io_QDMA_h2c_stub_out_tdata = io_QDMA_h2c_stub_out_tdata; // @[PackageHandler.scala 31:24]

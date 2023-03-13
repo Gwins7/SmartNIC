@@ -1,0 +1,9 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  --include "../../../../../smart_nic.srcs/sources_1/imports" --include "../../../../../smart_nic.ip_user_files/ipstatic/hdl" --include "../../../../../doce_nf.gen/sources_1/ip/axis_data_fifo_0/hdl" \
+"smartnic_sim_func_synth.v" \
+
+sv xil_defaultlib  --include "../../../../../smart_nic.srcs/sources_1/imports" --include "../../../../../smart_nic.ip_user_files/ipstatic/hdl" --include "../../../../../doce_nf.gen/sources_1/ip/axis_data_fifo_0/hdl" \
+"../../../../../smart_nic.srcs/sources_1/imports/smartnic_sim.sv" \
+
+# Do not sort compile order
+nosort
