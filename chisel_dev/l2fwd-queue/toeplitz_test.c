@@ -75,6 +75,7 @@ void main(void){
         pthread_join(handler[i],&thread_res[i]);
     }
     // printf("[Overall] test finished!\n");
+    free(handler);
     res = 0;
     for (i=0;i<thread_num;i++) res |= thread_res[i];
     if (res)  printf("[Overall] test fail!\n");

@@ -45,7 +45,8 @@
 
 #include "../../drivers/net/qdma/rte_pmd_qdma.h"
 
-#define LOG_STATUS 1
+#define LOG_IP_PORT 0
+#define LOG_ALL     0
 
 #define H2C_PACK_COUNTER 0x0100
 #define H2C_ERR_COUNTER  0x0104
@@ -97,6 +98,7 @@
 struct rte_mbuf ** save_mbufs[16];
 //int save_head[16] = {0};
 
+static int dump_mbuf_all(struct rte_mbuf * mbuf ,int fd );
 int save_fd[16];
 
 void qdma_pci_write_reg(struct rte_eth_dev *dev, uint32_t bar, uint32_t reg,
@@ -116,7 +118,14 @@ static int mac_updating = 1;
 #define MAX_PKT_BURST 32
 #define BURST_TX_DRAIN_US 100 /* TX drain every ~100us */
 #define MEMPOOL_CACHE_SIZE 256
+#define MBUF_SIZE 2048
+#define PKT_SIZE 128
+#define NB_MBUFS 256*1024
+#define NB_PKT_MBUF 1024
 
+#define SRC_IP_LOOP 16
+#define swab16(x) ((x&0x00ff) << 8 | (x&0xff00) >> 8)
+#define swab32(x) ((x&0x000000ff) << 24 | (x&0x0000ff00) << 8 | (x&0x00ff0000) >> 8 | (x&0xff000000) >> 24)
 /*
  * Configurable number of RX/TX ring descriptors
  */
@@ -172,6 +181,155 @@ static uint64_t timer_period = 1; /* default period is 10 seconds */
 int config_bar_idx, user_bar_idx, bypass_bar_idx;
 
 rte_spinlock_t sent_lock;
+
+static void build_ip_head_data(struct rte_mbuf *mbuf,int size ,int seq, int queueid,int type)
+{ 
+	struct rte_ipv4_hdr *ip;
+	mbuf->l3_len = 20;
+	ip = rte_pktmbuf_mtod_offset(mbuf,struct rte_ipv4_hdr *, sizeof(struct rte_ether_hdr));
+	//mbuf->l4_len = (TCP_HEADER_LEN + optlen);
+	//mbuf->payload_len = 0;
+	
+    ip->version_ihl = 0x45;
+	ip->type_of_service=0;
+    ip->total_length =rte_cpu_to_be_16( size - sizeof(struct rte_ether_hdr) );
+	ip->packet_id= 1;
+	ip->fragment_offset=rte_cpu_to_be_16(0x4000);
+
+	ip->time_to_live=64;
+	ip->hdr_checksum=0;
+	if(type == 0 ){
+    	ip->src_addr = swab32(RTE_IPV4(192, 168, 0, 0));
+    	ip->dst_addr = swab32(RTE_IPV4(192, 168, 0, 1));
+    	} else {
+    	ip->dst_addr = swab32(RTE_IPV4(15, 15, 2, seq % SRC_IP_LOOP));
+    	ip->src_addr = swab32(RTE_IPV4(15, 15, 1, seq % SRC_IP_LOOP));
+
+ 	}
+	ip->hdr_checksum=0;
+	ip->next_proto_id = 6;
+
+} 
+
+static void build_tcp_head_data(struct rte_mbuf *mbuf,int type)
+{ 
+	struct rte_tcp_hdr *tcp_head;
+	tcp_head = rte_pktmbuf_mtod_offset(mbuf,struct rte_tcp_hdr *, sizeof(struct rte_ether_hdr) + sizeof(struct rte_ipv4_hdr));
+	static int srcport = 0;
+	static int dstport = 0;
+	mbuf->l4_len = sizeof(struct rte_tcp_hdr);
+	if(type == 0 ) {
+		tcp_head->src_port = rte_cpu_to_be_16(1000);
+		tcp_head->dst_port = rte_cpu_to_be_16(80);
+
+	} else if(type ==1 ){
+		tcp_head->src_port = rte_cpu_to_be_16(1000);
+		tcp_head->dst_port = rte_cpu_to_be_16(81);
+	} else if(type == 2) {
+
+		tcp_head->src_port = rte_cpu_to_be_16(1000 + srcport);
+		tcp_head->dst_port = rte_cpu_to_be_16(80);
+		srcport = (srcport + 1) % 200;
+	} else if(type == 3) {
+
+		tcp_head->src_port = rte_cpu_to_be_16(80);
+		tcp_head->dst_port = rte_cpu_to_be_16(1000 + dstport);
+		dstport = (dstport + 1) % 200;
+ 	}
+
+	tcp_head->data_off=(sizeof(struct rte_tcp_hdr)/4<<4|0);
+	if(type == 0 || type == 1) {
+		tcp_head->tcp_flags=0x02; //syn
+	}else if(type ==2 ){
+		tcp_head->tcp_flags=0x10; //ack
+	}
+	tcp_head->rx_win=htons(14600);
+	tcp_head->cksum=0;
+	tcp_head->tcp_urp=0;
+
+} 
+
+static void build_ether_head_data(struct rte_mbuf *mbuf, int type)
+{
+
+    struct rte_ether_hdr *eth;
+    //uint8_t *tmp;
+	mbuf->l2_len = 14;
+    eth = rte_pktmbuf_mtod(mbuf, struct rte_ether_hdr *);
+	if ( type == 0 ) {
+    //90:e2:ba:16:22:99
+    	eth->d_addr.addr_bytes[0] =  0x90;
+    	eth->d_addr.addr_bytes[1] =  0xe2;
+    	eth->d_addr.addr_bytes[2] =  0xba;
+    	eth->d_addr.addr_bytes[3] =  0x16;
+    	eth->d_addr.addr_bytes[4] =  0x22;
+    	eth->d_addr.addr_bytes[5] =  0x98;
+    /*src addr */
+
+    //90:e2:ba:14:c5:e0
+    	eth->s_addr.addr_bytes[0] =  0xaa;
+    	eth->s_addr.addr_bytes[1] =  0xbb;
+    	eth->s_addr.addr_bytes[2] =  0xcc;
+    	eth->s_addr.addr_bytes[3] =  0xdd;
+    	eth->s_addr.addr_bytes[4] =  0xee;
+    	eth->s_addr.addr_bytes[5] =  0xff;
+	} else {
+
+    	eth->s_addr.addr_bytes[0] =  0x90;
+    	eth->s_addr.addr_bytes[1] =  0xe2;
+   		eth->s_addr.addr_bytes[2] =  0xba;
+    	eth->s_addr.addr_bytes[3] =  0x16;
+    	eth->s_addr.addr_bytes[4] =  0x22;
+    	eth->s_addr.addr_bytes[5] =  0x98;
+    /*src addr */
+
+    //90:e2:ba:14:c5:e0
+    	eth->d_addr.addr_bytes[0] =  0xaa;
+    	eth->d_addr.addr_bytes[1] =  0xbb;
+    	eth->d_addr.addr_bytes[2] =  0xcc;
+    	eth->d_addr.addr_bytes[3] =  0xdd;
+    	eth->d_addr.addr_bytes[4] =  0xee;
+    	eth->d_addr.addr_bytes[5] =  0xff;
+	}
+    /*ether_type*/
+    eth->ether_type = rte_cpu_to_be_16(0x0800);
+}
+
+int populate_pkts(struct rte_mbuf **buf, int qid){
+	int i;
+	printf("populate_pkts\n");
+	for (i = 0; i < NB_PKT_MBUF; i++)
+	{
+		if (l2fwd_pktmbuf_pool == NULL) {
+			printf("Could not find mempool\n");
+			//rte_spinlock_unlock(&pinfo[port_id].port_update_lock);
+			return -1;
+		}
+		
+		buf[i] = rte_pktmbuf_alloc(l2fwd_pktmbuf_pool);
+		if (buf[i] == NULL) {
+			printf(" #####Cannot "
+					"allocate mbuf packet\n");
+			return -1;
+		}
+
+		uint16_t size = PKT_SIZE;
+		char* data = rte_pktmbuf_mtod(buf[i], char *);
+
+		int a;
+		for (a=64;a<PKT_SIZE;a++) *(data+a) = rand()&0xff;
+
+		build_ether_head_data(buf[i], 0);
+		build_ip_head_data(buf[i], PKT_SIZE, i, qid, 0);
+		build_tcp_head_data(buf[i], 0);
+
+		buf[i]->nb_segs = 1;
+		buf[i]->next = NULL;
+		rte_pktmbuf_data_len(buf[i]) = (uint16_t)size;
+		rte_pktmbuf_pkt_len(buf[i])  = (uint16_t)size;
+	}
+	return 0;
+}
 
 /* Print out statistics on packets dropped */
 static void
@@ -279,7 +437,7 @@ l2fwd_simple_forward(struct rte_mbuf *m, unsigned portid, uint16_t lcore_id)
 }
 
 
-static int dump_mbuf(struct rte_mbuf * mbuf ,int fd )
+static int dump_mbuf_ip_port(struct rte_mbuf * mbuf ,int fd )
 {
 	int ret = 0;
 
@@ -297,6 +455,29 @@ static int dump_mbuf(struct rte_mbuf * mbuf ,int fd )
 	fflush(fd);
 	return ret;
 }
+
+
+static int dump_mbuf_all(struct rte_mbuf * mbuf ,int fd )
+{
+	int ret = 0;
+	uint32_t *dump;	
+	int i = 0;
+	dump = rte_pktmbuf_mtod(mbuf,uint32_t *);
+	for(i = 0; i < 256 ; i = i + 4 ) 
+	{
+		
+		fprintf(fd,"%08x%08x%08x%08x\n", 
+			rte_be_to_cpu_32(*(dump + i)), 
+			rte_be_to_cpu_32(*(dump + i + 1)), 
+			rte_be_to_cpu_32(*(dump + i + 2)), 
+			rte_be_to_cpu_32(*(dump + i + 3)) );
+		fflush(fd);
+	}
+	fprintf(fd,"\n");
+	fflush(fd);
+	return ret;
+}
+
 
 /* main processing loop */
 static void
@@ -369,14 +550,30 @@ l2fwd_main_loop(void)
 		return;
 	}
 	else if (lcore_id > RX_QUEUE_NUM){
+		int queue_id = (lcore_id-1) % TX_QUEUE_NUM;
+		struct rte_mbuf *buf[NB_PKT_MBUF];
+		populate_pkts(buf, queue_id);
 		while(!force_quit){
-			int queue_id = (lcore_id-1) % TX_QUEUE_NUM;
-			
-			sent = rte_eth_tx_buffer_flush(0, queue_id, tx_buffer[queue_id]);
-			
-			if (sent) {
-				port_statistics[0].tx[queue_id] += sent;
+			for (j=0;j<NB_PKT_MBUF;){
+				int remain = NB_PKT_MBUF - j;
+				int send = (remain < MAX_PKT_BURST) ? remain : MAX_PKT_BURST;
+				// printf("[DEBUG] sending packet from core %d; queue %d; buf = 0x%lx; tindex = %d\n",id,q_id,buf,tindex);
+				uint16_t tx_c = rte_eth_tx_burst(0, queue_id, buf + j, send);
+				if (LOG_ALL) {
+					int r;
+					for (r=0;r<tx_c;r++) 
+						if(save_fd[queue_id] > 0) 
+							dump_mbuf_all(buf[r], save_fd[queue_id]);
+				}
+				j += tx_c;
+				port_statistics[0].tx[queue_id] += tx_c;
 			}
+			j=0;
+			// sent = rte_eth_tx_buffer_flush(0, queue_id, tx_buffer[queue_id]);
+			
+			// if (sent) {
+			// 	port_statistics[0].tx[queue_id] += sent;
+			// }
 		}
 		return;
 	}
@@ -400,14 +597,20 @@ l2fwd_main_loop(void)
 						pkts_burst, MAX_PKT_BURST);
 			port_statistics[0].rx[lcore_id] += nb_rx;
 
-			if(LOG_STATUS){
+			if(LOG_IP_PORT){
 				dum_rx_num = dum_rx_num + nb_rx;
 				if(dum_rx_num > 10000) {
 					if(save_fd[lcore_id] > 0 ) {
-						dump_mbuf(pkts_burst[0] , save_fd[lcore_id] );
+						dump_mbuf_ip_port(pkts_burst[0] , save_fd[lcore_id] );
 						dum_rx_num = 0;
 					}
 				}
+			}
+			else if (LOG_ALL) {
+				int r;
+				for (r=0;r<nb_rx;r++) 
+					if(save_fd[lcore_id] > 0) 
+						dump_mbuf_all(pkts_burst[r], save_fd[lcore_id]);
 			}
 
 			for (j = 0; j < nb_rx; j++) {
@@ -668,7 +871,7 @@ main(int argc, char **argv)
 	unsigned lcore_id, rx_lcore_id;
 	unsigned nb_ports_in_mask = 0;
 	unsigned int nb_lcores = 0;
-	unsigned int nb_mbufs;
+	// unsigned int nb_mbufs;
 
 	/* init EAL */
 	ret = rte_eal_init(argc, argv);
@@ -698,7 +901,7 @@ main(int argc, char **argv)
 		rte_exit(EXIT_FAILURE, "No Ethernet ports - bye\n");
 
 	/*init fd*/
-	if (LOG_STATUS){
+	if (LOG_IP_PORT || LOG_ALL){
 		int i = 0;
 		char logfile[32];
 		for(i = 0;i < 16;i++){
@@ -768,12 +971,12 @@ main(int argc, char **argv)
 		printf("Lcore %u: RX port %u\n", rx_lcore_id, portid);
 	}
 
-	nb_mbufs = RTE_MAX(nb_ports * (nb_rxd + nb_txd + MAX_PKT_BURST +
-		nb_lcores * MEMPOOL_CACHE_SIZE), 256U*1024U);
+	// nb_mbufs = RTE_MAX(nb_ports * (nb_rxd + nb_txd + MAX_PKT_BURST +
+	// 	nb_lcores * MEMPOOL_CACHE_SIZE), 256U*1024U);
 
 	/* create the mbuf pool */
-	l2fwd_pktmbuf_pool = rte_pktmbuf_pool_create("mbuf_pool", nb_mbufs,
-		MEMPOOL_CACHE_SIZE, 0, RTE_MBUF_DEFAULT_BUF_SIZE,
+	l2fwd_pktmbuf_pool = rte_pktmbuf_pool_create("mbuf_pool", NB_MBUFS,
+		MEMPOOL_CACHE_SIZE, 0, MBUF_SIZE + RTE_PKTMBUF_HEADROOM,
 		rte_socket_id());
 	if (l2fwd_pktmbuf_pool == NULL)
 		rte_exit(EXIT_FAILURE, "Cannot init mbuf pool\n");
@@ -919,23 +1122,19 @@ main(int argc, char **argv)
 	printf("QDMA Config bar idx: %d\n", config_bar_idx);
 	printf("QDMA User bar idx: %d\n", user_bar_idx);
 	printf("QDMA Bypass bar idx: %d\n", bypass_bar_idx);
-
-	int reg_val = qdma_pci_read_reg(&rte_eth_devices[0],user_bar_idx, 0x8);
-	reg_val = (reg_val & 0xf) | 0x1;
-	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, 0x8, reg_val);
 	
 	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, RESET_COUNTER  , 0x1);
 	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, RESET_COUNTER  , 0x0);
 
  
-// 8 bit op:
-// op = 00000000: do nothing
+// 16 bit op:
+// op = 0: do nothing
 // op(3) : RxStrMatcher -> op(2,0): function(<(4),>(2),=(1),!=(0))
 // op(4) : RxStrSearcher
 // op(5) : RxRSSHasher
 // op(6) : ChksumGenerator / ChksumVerifier (control in Tx/RxBufferFifo)
 // op(7) : RxRESearcher
-
+// op(8) : TxAESEncrypter / RxAESDecrypter
 // example test:
 // 1. 0x60(01100000) 0x6d5a6d5a 0x1 0x0 (RSS)
 // 2. 0x4b(01001011) 0xc0a88000 0xffffffff 0x1a (Matcher, dst_ip >= 192.168.128.0)
@@ -948,10 +1147,10 @@ main(int argc, char **argv)
 // RxStrSearcher:   arg0:content;   arg1:mask
 // RxRSSHasher: arg1:hash_seed; arg2:hash_mask
 // RxRESearcher: arg0-15:DFA rule
-
-	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_OP   , 0x60);
-	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_ARG0 , 0x6d5a6d5a);
-	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_ARG1 , 0xf);
+// AES: arg12-15: key
+	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_OP   , 0x40);
+	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_ARG0 , 0x0);
+	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_ARG1 , 0x0);
 	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_ARG2 , 0x0);
 	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_ARG3 , 0x0);
 	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_ARG4 , 0x0);
@@ -963,10 +1162,10 @@ main(int argc, char **argv)
 	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_ARG9 , 0x0);
 	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_ARG10, 0x0);
 	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_ARG11, 0x0);
-	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_ARG12, 0x0);
-	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_ARG13, 0x0);
+	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_ARG12, 0x12345678);
+	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_ARG13, 0x90abcdef);
 	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_ARG14, 0x0);
-	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_ARG15, 0x0);
+	qdma_pci_write_reg(&rte_eth_devices[0], user_bar_idx, C2H_MATCH_ARG15, 0x11111111);
 	
 	printf("QDMA arg setting done\n");
 

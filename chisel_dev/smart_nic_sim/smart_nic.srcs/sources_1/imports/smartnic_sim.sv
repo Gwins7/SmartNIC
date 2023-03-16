@@ -4,7 +4,7 @@
 // attention for clk's posedge and negedge! 
 // ONLY THE SIGNALS IN CLK'S NEG PERIOD ARE VALID
 module smartnic_sim();
-    localparam pkt_burst_len = 24;
+    localparam pkt_burst_len = 16;
     localparam wait_time = 50;
     localparam send_pattern_num = 4;
     reg QDMA_axi_aclk;
@@ -180,8 +180,6 @@ always @ (posedge QDMA_axi_aclk) begin
     end
 end
 
-
-
 assign QDMA_h2c_err = 1'b0;
 assign QDMA_h2c_mdata = 32'h20000000;
 assign QDMA_h2c_mty = 6'h0;
@@ -192,12 +190,8 @@ assign QDMA_h2c_zero_byte = 1'b0;
 //646c726f776f6c6c6568
 
 assign QDMA_h2c_tdata = (beat_counter == 0)?(
-    send_pattern == 0 ? 512'h00000000000000000000000000000839025000000000000000005000e80300010f0f00020f0f0000064000400001320000450008ffeeddccbbaa982216bae290:
-    send_pattern == 1 ? 512'h00000000000000000000000000000839025000000000000000005000e80301010f0f01020f0f0000064000400001320000450008ffeeddccbbaa982216bae290:
-    send_pattern == 2 ? 512'h00000000000000000000000000000839025000000000000000005000e80302010f0f02020f0f0000064000400001320000450008ffeeddccbbaa982216bae290:
-    send_pattern == 3 ? 512'h00000000000000000000000000000839025000000000000000005000e80303010f0f03020f0f0000064000400001320000450008ffeeddccbbaa982216bae290:
-    512'h0
-):512'h0;
+    512'h00000000000000000000000000000839025000000000000000005000e80300010f0f00020f0f0000064000400001320000450008ffeeddccbbaa982216bae290
+):(512'h0);
 
 assign QDMA_h2c_tlast = (beat_counter == pkt_burst_len-1);
 assign QDMA_h2c_tvalid = QDMA_axi_aresetn /*&& wait_timer == 0*//* & !wait_status*/;
@@ -226,9 +220,9 @@ assign QDMA_c2h_tready = 1'b1;
 // RxStrSearcher:   arg0:content;   arg1:mask
 // RxRSSHasher: arg1:hash_seed; arg2:hash_mask
 // RxRESearcher: arg0-15:DFA rule
-assign c2h_match_op   = 8'b01010000;
-assign c2h_match_arg0 = 32'h0f0f0200;
-assign c2h_match_arg1 = 32'hffffffff;
+assign c2h_match_op   = 8'h80;
+assign c2h_match_arg0 = 32'h0;
+assign c2h_match_arg1 = 32'h0;
 assign c2h_match_arg2 = 32'h0;
 assign c2h_match_arg3 = 32'h0;
 assign c2h_match_arg4 = 32'h0;
@@ -239,9 +233,9 @@ assign c2h_match_arg8 = 32'h0;
 assign c2h_match_arg9 = 32'h0;
 assign c2h_match_arg10 = 32'h00000000;
 assign c2h_match_arg11 = 32'h00000000;
-assign c2h_match_arg12 = 32'h00000000;
-assign c2h_match_arg13 = 32'h00000000;
+assign c2h_match_arg12 = 32'h12345678;
+assign c2h_match_arg13 = 32'h90abcdef;
 assign c2h_match_arg14 = 32'h00000000;
-assign c2h_match_arg15 = 32'h00000000;
+assign c2h_match_arg15 = 32'h11111111;
 
 endmodule
