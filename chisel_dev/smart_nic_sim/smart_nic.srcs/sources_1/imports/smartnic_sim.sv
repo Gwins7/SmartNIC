@@ -50,23 +50,23 @@ module smartnic_sim();
     wire [31:0]  QDMA_c2h_pack_counter;
     wire [31:0]  QDMA_c2h_err_counter;
 
-    wire [7:0] c2h_match_op;
-    wire [31:0] c2h_match_arg0;
-    wire [31:0] c2h_match_arg1;
-    wire [31:0] c2h_match_arg2;
-    wire [31:0] c2h_match_arg3;
-    wire [31:0] c2h_match_arg4;
-    wire [31:0] c2h_match_arg5;
-    wire [31:0] c2h_match_arg6;
-    wire [31:0] c2h_match_arg7;
-    wire [31:0] c2h_match_arg8;
-    wire [31:0] c2h_match_arg9;
-    wire [31:0] c2h_match_arg10;
-    wire [31:0] c2h_match_arg11;
-    wire [31:0] c2h_match_arg12;
-    wire [31:0] c2h_match_arg13;
-    wire [31:0] c2h_match_arg14;
-    wire [31:0] c2h_match_arg15;
+    wire [15:0] op;
+    wire [31:0] arg0;
+    wire [31:0] arg1;
+    wire [31:0] arg2;
+    wire [31:0] arg3;
+    wire [31:0] arg4;
+    wire [31:0] arg5;
+    wire [31:0] arg6;
+    wire [31:0] arg7;
+    wire [31:0] arg8;
+    wire [31:0] arg9;
+    wire [31:0] arg10;
+    wire [31:0] arg11;
+    wire [31:0] arg12;
+    wire [31:0] arg13;
+    wire [31:0] arg14;
+    wire [31:0] arg15;
 
 mpsoc_wrapper mpsoc_wrapper_sim
    (
@@ -113,23 +113,23 @@ mpsoc_wrapper mpsoc_wrapper_sim
     QDMA_c2h_pack_counter,
     QDMA_c2h_err_counter,
 
-    c2h_match_op,
-    c2h_match_arg0,
-    c2h_match_arg1,
-    c2h_match_arg2,
-    c2h_match_arg3,
-    c2h_match_arg4,
-    c2h_match_arg5,
-    c2h_match_arg6,
-    c2h_match_arg7,
-    c2h_match_arg8,
-    c2h_match_arg9,
-    c2h_match_arg10,
-    c2h_match_arg11,
-    c2h_match_arg12,
-    c2h_match_arg13,
-    c2h_match_arg14,
-    c2h_match_arg15,
+    op,
+    arg0,
+    arg1,
+    arg2,
+    arg3,
+    arg4,
+    arg5,
+    arg6,
+    arg7,
+    arg8,
+    arg9,
+    arg10,
+    arg11,
+    arg12,
+    arg13,
+    arg14,
+    arg15,
     !QDMA_axi_aresetn
     );
 
@@ -189,9 +189,24 @@ assign QDMA_h2c_zero_byte = 1'b0;
 
 //646c726f776f6c6c6568
 
-assign QDMA_h2c_tdata = (beat_counter == 0)?(
-    512'h00000000000000000000000000000839025000000000000000005000e80300010f0f00020f0f0000064000400001320000450008ffeeddccbbaa982216bae290
-):(512'h0);
+assign QDMA_h2c_tdata = 
+beat_counter == 0 ? 512'h00000000000000000000000000000839025000000000000000005000e8030100a8c00000a8c0b4b4064000400001f20300450008ffeeddccbbaa982216bae290:
+beat_counter == 1 ? 512'ha605e3637f2bbf47d0ac882830b81bbbecb15455ff8c7d418ef794315ab29e4385b8a4385a12bfa87cd00c74cc6a6797b2c8d7bdfe86ad5d9de193172de69f4d:
+beat_counter == 2 ? 512'h0b01359121b4cec2d9104661d1f5a8da749c6c1cbfb6df9eec53d278c692817ae081c35fdbbe7c783e51b9f7800c6e58dcb63d21c98ccc748d40f74bb200b781:
+beat_counter == 3 ? 512'ha48ab65ea753ab7afbf9833468413b99d85210d03a7c71fd5dae2c59ab113546e363b32c58b2f7c79142f9cf69e9890717945f3d1fc3d103031b24652ed193b6:
+beat_counter == 4 ? 512'h2492ed00e114781cdf7a0d092351df4790aeee03e5d6b1b696b19826ebf62823b1d988c534fe0fd657bc2adcc131598dc818522f40001e6fc5a2fec8454f9beb:
+beat_counter == 5 ? 512'hd62bed5be2d569afe10968ed8a367228e372d29995ce2fff597257e89b85277b4918f233f46046f37e327b6253005549dd046a9674bca871d7d2c0203c0f8815:
+beat_counter == 6 ? 512'h0de8ea71c39d86b226c68f0be84059bad3b0f4539264459bb7aa77a3a321bf9c254deb1076c0231bdd4eb22e6da9c6801e900df6ad9b24130656e407fc72b014:
+beat_counter == 7 ? 512'h1122d314080a20964f150f05cc24413660432fa82d6949d2759a6ad57e677afd1ac9f371bb0b874a48eac496c4fe07b815c65f5bf3ae67a01c035b814cb109a9:
+beat_counter == 8 ? 512'h97133a9e1cac2e722fe19cc69cd17dee544a4edde3d3a6b2b9b3b146ed191df9f78e6fa97d4dd66945cb48ae7c339f77677b36301af30172c69829f4228f894d:
+beat_counter == 9 ? 512'h69b55d1e4815003264f5565106266d8a256aaaea039b2c8be0b96103280acc4a6d481e16b10bdc13ef30e47c0103e03b660fbd78ba732add905637de9d842c57:
+beat_counter == 10 ? 512'h19f7d2291e72f86f7b7c1ea248e2ca460ae89a840c146bbab3bc123c1105f1f0d86031aff77c51d8343cd802d7e2ac86dc86195261afa877ab0d4a202c91bf29:
+beat_counter == 11 ? 512'hf0c5178d1a722732e6b71c84667819854f2bc1c884e00c2409385db670abcf62aba566e88b6f166251a46ae129eec386a6e1bc60d7d4c652c8b2e70eff2afcc3:
+beat_counter == 12 ? 512'h34a5cf611040ff62a162ca8fdfa5a58e667259aba59c095e2e93d888a132efd3958f62ae9f9d97118325ea513f3335bbccbda1476e7686a5f2a699ce9d6070e6:
+beat_counter == 13 ? 512'hdea1a6fcd9d8f2cf3f8d9507389ace4641f71e77ff9b52957e9f840c910fa3e2c8ce0a0999653a3854fa39f259d728caf883256a1db311720d7568af47d5d7be:
+beat_counter == 14 ? 512'h0f53b0cdb74a3b65c34aba3932e7a0ea539536c6c21d0735453fc6e476f2d5429c65925287f1ab8a18d39848940bb38dd319bf8dd8c86f61c9d40f345670b04a:
+beat_counter == 15 ? 512'h1e61b3e3ad30ed7ebc4aff165fcaacda598c0e219e2a8a9b9887cecd471e083bb483f62f73a27fa6eb346a857120cb38ede497039102cdcb40afc40b6a854585:
+512'h0;
 
 assign QDMA_h2c_tlast = (beat_counter == pkt_burst_len-1);
 assign QDMA_h2c_tvalid = QDMA_axi_aresetn /*&& wait_timer == 0*//* & !wait_status*/;
@@ -209,7 +224,7 @@ assign QDMA_c2h_tready = 1'b1;
 // op(7) : RxRESearcher
 
 // example test:
-// 1. 0x60(01100000) 0x6d5a6d5a 0x1 0x0 (RSS)
+// 1. 0x60(01100000) 0x6d5a6d5a 0x6d5a6d5a 0x6d5a6d5a 0x6d5a6d5a 0x01234567 0x89abcdef (RSS)
 // 2. 0x4b(01001011) 0x0f0f0208 0xffffffff 0x1a (Matcher, ip >= 15.15.2.8)
 // 3. 0x50(01010000) 0x0f0f0208 0xffffffff (Searcher)
 // 4. 0x80(10000000) 0x10006868 0x21006565 0x32006c6c 0x43006c6c
@@ -218,24 +233,24 @@ assign QDMA_c2h_tready = 1'b1;
 
 // RxStrMatcher:    arg0:content;   arg1:mask;      arg2:place
 // RxStrSearcher:   arg0:content;   arg1:mask
-// RxRSSHasher: arg1:hash_seed; arg2:hash_mask
+// RxRSSHasher: arg0~3:hash_seed; arg4~5:jump_table
 // RxRESearcher: arg0-15:DFA rule
-assign c2h_match_op   = 8'h80;
-assign c2h_match_arg0 = 32'h0;
-assign c2h_match_arg1 = 32'h0;
-assign c2h_match_arg2 = 32'h0;
-assign c2h_match_arg3 = 32'h0;
-assign c2h_match_arg4 = 32'h0;
-assign c2h_match_arg5 = 32'h0;
-assign c2h_match_arg6 = 32'h0;
-assign c2h_match_arg7 = 32'h0;
-assign c2h_match_arg8 = 32'h0;
-assign c2h_match_arg9 = 32'h0;
-assign c2h_match_arg10 = 32'h00000000;
-assign c2h_match_arg11 = 32'h00000000;
-assign c2h_match_arg12 = 32'h12345678;
-assign c2h_match_arg13 = 32'h90abcdef;
-assign c2h_match_arg14 = 32'h00000000;
-assign c2h_match_arg15 = 32'h11111111;
+assign op   = 16'h60;
+assign arg0 = 32'h6d5a6d5a;
+assign arg1 = 32'h6d5a6d5a;
+assign arg2 = 32'h6d5a6d5a;
+assign arg3 = 32'h6d5a6d5a;
+assign arg4 = 32'h01234567;
+assign arg5 = 32'h89abcdef;
+assign arg6 = 32'h0;
+assign arg7 = 32'h0;
+assign arg8 = 32'h0;
+assign arg9 = 32'h0;
+assign arg10 = 32'h0;
+assign arg11 = 32'h0;
+assign arg12 = 32'h0;
+assign arg13 = 32'h0;
+assign arg14 = 32'h0;
+assign arg15 = 32'h0;
 
 endmodule
