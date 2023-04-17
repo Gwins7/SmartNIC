@@ -1,12 +1,7 @@
 [submodule "chisel_dev/packagehandler"]
-	path = chisel_dev/packagehandler
+	path = dev/packagehandler
 	url = https://github.com/Gwins7/packagehandler.git
 [submodule "documents"]
 	path = documents
 	url = https://github.com/Gwins7/smartnic_documents.git
-[submodule "chisel_dev/open-nic"]
-	path = chisel_dev/open-nic
-	url = https://github.com/Xilinx/open-nic.git
-[submodule "chisel_dev/open-nic-shell"]
-	path = chisel_dev/open-nic-shell
-	url = https://github.com/Xilinx/open-nic-shell.git
+
