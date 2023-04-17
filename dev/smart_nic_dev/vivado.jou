@@ -1,0 +1,31 @@
+#-----------------------------------------------------------
+# Vivado v2020.1 (64-bit)
+# SW Build 2902540 on Wed May 27 19:54:35 MDT 2020
+# IP Build 2902112 on Wed May 27 22:43:36 MDT 2020
+# Start of session at: Wed Mar 29 12:55:17 2023
+# Process ID: 189092
+# Current directory: /home/huangtianyi/smart_nic_dev
+# Command line: vivado smart_nic.xpr
+# Log file: /home/huangtianyi/smart_nic_dev/vivado.log
+# Journal file: /home/huangtianyi/smart_nic_dev/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project smart_nic.xpr
+open_hw_manager
+connect_hw_server -allow_non_jtag
+open_hw_target
+set_property PROGRAM.FILE {/home/huangtianyi/smart_nic_dev/smart_nic.runs/impl_1_copy_1/mpsoc_wrapper.bit} [get_hw_devices xczu19_0]
+set_property PROBES.FILE {/home/huangtianyi/smart_nic_dev/smart_nic.runs/impl_1_copy_1/mpsoc_wrapper.ltx} [get_hw_devices xczu19_0]
+set_property FULL_PROBES.FILE {/home/huangtianyi/smart_nic_dev/smart_nic.runs/impl_1_copy_1/mpsoc_wrapper.ltx} [get_hw_devices xczu19_0]
+current_hw_device [get_hw_devices xczu19_0]
+refresh_hw_device [lindex [get_hw_devices xczu19_0] 0]
+display_hw_ila_data [ get_hw_ila_data hw_ila_data_1 -of_objects [get_hw_ilas -of_objects [get_hw_devices xczu19_0] -filter {CELL_NAME=~"u_ila_0"}]]
+current_hw_device [get_hw_devices arm_dap_1]
+refresh_hw_device -update_hw_probes false [lindex [get_hw_devices arm_dap_1] 0]
+current_hw_device [get_hw_devices xczu19_0]
+set_property PROBES.FILE {/home/huangtianyi/smart_nic_dev/smart_nic.runs/impl_1_copy_1/mpsoc_wrapper.ltx} [get_hw_devices xczu19_0]
+set_property FULL_PROBES.FILE {/home/huangtianyi/smart_nic_dev/smart_nic.runs/impl_1_copy_1/mpsoc_wrapper.ltx} [get_hw_devices xczu19_0]
+set_property PROGRAM.FILE {/home/huangtianyi/smart_nic_dev/smart_nic.runs/impl_1_copy_1/mpsoc_wrapper.bit} [get_hw_devices xczu19_0]
+program_hw_devices [get_hw_devices xczu19_0]
+refresh_hw_device [lindex [get_hw_devices xczu19_0] 0]
+save_wave_config {/home/huangtianyi/smart_nic_dev/smart_nic.hw/hw_1/wave/hw_ila_data_1/hw_ila_data_1.wcfg}

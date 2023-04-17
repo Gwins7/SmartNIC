@@ -1,0 +1,7 @@
+vhdl xil_defaultlib  \
+"../../../../doce_nf.gen/sources_1/bd/mpsoc/ip/mpsoc_pl_clk_sys_reset_0_1/sim/mpsoc_pl_clk_sys_reset_0.vhd" \
+"../../../../doce_nf.gen/sources_1/bd/mpsoc/ip/mpsoc_rx_reset_0_1/sim/mpsoc_rx_reset_0.vhd" \
+"../../../../doce_nf.gen/sources_1/bd/mpsoc/ip/mpsoc_tx_reset_0_1/sim/mpsoc_tx_reset_0.vhd" \
+"../../../bd/mpsoc/ip/mpsoc_rx_datapath_reset_0/sim/mpsoc_rx_datapath_reset_0.vhd" \
+
+nosort

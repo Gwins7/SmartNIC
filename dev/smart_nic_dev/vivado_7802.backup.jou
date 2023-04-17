@@ -1,0 +1,14 @@
+#-----------------------------------------------------------
+# Vivado v2020.1 (64-bit)
+# SW Build 2902540 on Wed May 27 19:54:35 MDT 2020
+# IP Build 2902112 on Wed May 27 22:43:36 MDT 2020
+# Start of session at: Thu Mar 16 10:28:31 2023
+# Process ID: 7802
+# Current directory: /home/huangtianyi/smart_nic_aes_dev
+# Command line: vivado smart_nic.xpr
+# Log file: /home/huangtianyi/smart_nic_aes_dev/vivado.log
+# Journal file: /home/huangtianyi/smart_nic_aes_dev/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project smart_nic.xpr
+open_run impl_1_copy_1

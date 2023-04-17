@@ -1,2 +1,0 @@
-open_nic:https://github.com/Xilinx/open-nic
-open_nic_shell:https://github.com/Xilinx/open-nic-shell
