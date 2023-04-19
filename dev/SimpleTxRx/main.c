@@ -1136,12 +1136,12 @@ main(int argc, char **argv)
 // op(7) : RxRESearcher
 // op(8) : TxAESEncrypter / RxAESDecrypter
 // example test:
-// 1. 0x60(01100000) 0x6d5a6d5a 0x6d5a6d5a 0x6d5a6d5a 0x6d5a6d5a 0x01234567 0x89abcdef (RSS)
+// 1. 0x60(01100000) 0x6d5a6d5a 0x6d5a6d5a 0x6d5a6d5a 0x6d5a6d5a 0x01234567 0x89abcdef (AES)
 // 2. 0x4b(01001011) 0xc0a88000 0xffffffff 0x1a (Matcher, dst_ip >= 192.168.128.0)
 // 3. 0x50(01010000) 0xc0a88000 0xffffffff (Searcher)
 // 4. 0x80(10000000) 0x10006868 0x21006565 0x32006c6c 0x43006c6c
 //                   0x54006f6f 0x65007777 0x76006f6f 0x87007272
-//                   0x98006c6c 0xf9006464 0x00000000(x6) (helloworld) (RESearcher)
+//                   0x98006c6c 0xf9006464 0x00000000(*6) (helloworld) (RESearcher)
 
 // RxStrMatcher:    arg0:content;   arg1:mask;      arg2:place
 // RxStrSearcher:   arg0:content;   arg1:mask

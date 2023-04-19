@@ -1,13 +1,25 @@
 ## 说明
 
-本文件夹包括本年度已经开展的工作和积累。
+本文件夹包括智能网卡工作的相关材料。
 
 子文件夹具体包含内容如下：
 
 ```
-dev:开发工程，包括Chisel模板、PackageHandler工程、硬件工程（仿真、上板）与工具。
-documents: 积累文档，包括Chisel学习材料、毕设材料、参考文献/手册、周报和工作日志。
+dev:开发相关代码。
+	·packageHandler: 使用Chisel开发的PackageHandler模块。（配合文档与注释理解）
+	·SimpleTxRx: 在l2fwd上修改得到的SimpleTxRx小程序，可在DPDK环境下测试智能网卡功能；
+				 同时包含软件实现Toeplitz算法与AES加解密算法的源码。
+				 需要使用DPDK程序使用智能网卡相关功能时，可以参考该程序实现。
+	·smart_nic_dev: 上板用硬件工程。
+	·smart_nic_sim: 仿真用硬件工程。
+	·NF-card.zip: 硬件工程使用的板卡约束文件，打开smart_nic_dev前需要先将约束文件导入vivado。
+	·chisel-playground-master.zip: Chisel工程模板。
+documents: 积累文档。
+	·Chisel_study: Chisel学习材料。
+	·Graduate: 毕设相关材料，如通知、论文模板等。
+	·Reference: 参考资料参考文献与IP核使用手册。
+	·Weekly_report: 周报。
+	·Working_progress: 工作日志。
+	·Thesis v3.pdf: 毕业论文（项目说明文档），结合该文档理解项目。
 drawio: 演示用框图文件。
-others: 其他材料。
-test_result: 测试相关资料。
 ```
