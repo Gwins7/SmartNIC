@@ -14,12 +14,6 @@ dev:开发相关代码。
 	·smart_nic_sim: 仿真用硬件工程。
 	·NF-card.zip: 硬件工程使用的板卡约束文件，打开smart_nic_dev前需要先将约束文件导入vivado。
 	·chisel-playground-master.zip: Chisel工程模板。
-documents: 积累文档。
-	·Chisel_study: Chisel学习材料。
-	·Graduate: 毕设相关材料，如通知、论文模板等。
-	·Reference: 参考资料参考文献与IP核使用手册。
-	·Weekly_report: 周报。
-	·Working_progress: 工作日志。
-	·Thesis v3.pdf: 毕业论文（项目说明文档），结合该文档理解项目。
+·Thesis v3.pdf: 毕业论文（项目说明文档），结合该文档理解项目。
 drawio: 演示用框图文件。
 ```
